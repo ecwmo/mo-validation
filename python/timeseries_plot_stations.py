@@ -9,6 +9,7 @@ import xarray as xr
 from datetime import date,timedelta
 import matplotlib.pyplot as plt
 from matplotlib.legend import Legend
+from get_5day_gsmap_aws_wrf import get_5day_gsmap_aws_wrf
 # import sys
 
 # Define function for plotting
@@ -193,81 +194,13 @@ dt = date.today()
 date_str = str(dt)
 date_str_nohyphen = date_str.replace('-','')
 
-wrf_dir = '/home/modelman/forecast/output/stations_fcst_for_validation/json/'
-gsmap_dir = "/home/modelman/forecast/validation/gsmap/nc/"
-aws_dir = "/home/modelman/forecast/input/aws_files/"
 outdir = "/home/modelman/forecast/output/validation/" + date_str_nohyphen + "/00/"
 station_list = pd.read_csv('stations_lufft.csv')
 
-# Initialize gsmap and aws dataframe
-df_all_stns_gsmap = pd.DataFrame(columns=['name', 'time', 'precip'])
-aws_cols = ['name', 'timestamp', 'rr','temp','rh','hi']
-df_all_stns_aws = pd.DataFrame(columns=aws_cols)
-
 # Loop through stations
 for i, stn in station_list.iterrows():
-
-    # Intialize dataframe for each station
-    df_gsmap = pd.DataFrame(columns=['time','precip',])
-    df_aws = pd.DataFrame(columns = aws_cols)
+    wrf_vars, df_aws, df_gsmap, dt_var_str = get_5day_gsmap_aws_wrf(dt,stn)
     
-    # Loop through past 5 days
-    for day in reversed(np.arange(1, 6)):
-
-        # Set date variable
-        dt_var = dt - timedelta(int(day))
-
-        # Access gsmap file and data
-        gsmap_df = xr.open_dataset(gsmap_dir + "gsmap_gauge_" + str(dt_var) + "_00_ph.nc")
-        aws_df = pd.read_csv(aws_dir + 'stn_obs_24hr_' + str(dt_var) +'_08PHT.csv',
-                             usecols=aws_cols, na_values="-999.000000")
-        aws_df = aws_df[aws_df['name'] == stn['name']]
-        df_temp_gsmap = gsmap_df.sel(lon=stn['lon'], lat=stn['lat'], method="nearest").to_dataframe()
-        df_temp_gsmap = df_temp_gsmap['precip'].reset_index(level='time')
-        
-        # Append daily data
-        df_gsmap = pd.concat([df_gsmap,df_temp_gsmap])
-        df_aws = pd.concat([df_aws,aws_df])
-
-    df_gsmap = df_gsmap.reset_index(drop=True)
-    df_aws = df_aws.reset_index(drop=True)
-
-    # Fill-in missing timesteps
-    df_aws['timestamp'] = pd.to_datetime(df_aws['timestamp'])
-    dt_var = dt - timedelta(5)
-    dt_var_str = str(dt_var)
-    start = pd.to_datetime(dt_var_str + ' 09:00:00+08:00')
-    end = pd.to_datetime(date_str + ' 08:00:00+08:00')
-    dates = pd.date_range(start=start, end=end, freq='1H')
-
-    df_aws = df_aws.set_index('timestamp').reindex(dates).reset_index().reindex(columns=df_aws.columns)
-    cols = df_aws.columns.difference(['rr','temp','rh','hi'])
-    df_aws[cols] = df_aws[cols].ffill()
-    df_aws['timestamp'] = dates
-
-    # # Append 5-day station data
-    # df_all_stns_gsmap = pd.concat([df_all_stns_gsmap, df_gsmap]).reset_index(drop=True)
-    # df_all_stns_aws = pd.concat([df_all_stns_aws, df_aws]).reset_index(drop=True)
-
-    # Add station name column
-    df_gsmap.insert(loc = 0, column = 'name', value = stn['name'])
-    
-    print('Saved ' + stn['name'] + ' data')
-
-    # Access wrf fcst from 5 days ago
-    df_wrf = pd.read_json(wrf_dir + 'forecast_lufft_stations_' + dt_var_str + '_08PHT.json', orient='index')
-
-    # Get 5-day data from wrf fcst json file
-
-    wrf_vars = {'rain': [], 'temp': [], 'rh': [], 'hi': []}
-
-    for i in np.arange(0,120,1):
-        for key in wrf_vars.keys():
-            wrf_vars[key].append(df_wrf['forecast'][stn['name']]['hr'][i][key])
-
-            # Set missing values to NaN
-            wrf_vars[key] = [np.nan if v is None else v for v in wrf_vars[key]]
-
     # Plotting for each station
     plt.figure(dpi=300)
     plt.rcParams["figure.figsize"] = (20, 24)
