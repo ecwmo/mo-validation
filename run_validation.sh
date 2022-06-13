@@ -148,7 +148,7 @@ sed -i "11s~.*~monname='${FCST_MM_PHT2}'~" gsmap_clim.gs
 grads -pbc gsmap_clim.gs
 
 # 24-hr timeseries plot (WRF, GFS, GSMaP)
-cd ${VAL_DIR}/timeseries
+cd ${VAL_DIR}/python
 
 # Edit concatenating csv script
 sed -i "4s/.*/yyyymmdd = '${FCST_YY_PHT}-${FCST_MM_PHT}-${FCST_DD_PHT}'/" concat_rain.py
