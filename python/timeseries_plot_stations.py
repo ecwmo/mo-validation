@@ -186,10 +186,10 @@ def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=Non
         ax.add_artist(leg)
         plt.setp(leg.get_title(),fontsize='16')
 
-# For testing
-# dt = date(2022,3,11)
-
 dt = date.today()
+
+# For testing
+# dt = date(2022,6,8)
 
 date_str = str(dt)
 date_str_nohyphen = date_str.replace('-','')
@@ -199,7 +199,7 @@ station_list = pd.read_csv('stations_lufft.csv')
 
 # Loop through stations
 for i, stn in station_list.iterrows():
-    wrf_vars, df_aws, df_gsmap, dt_var_str = get_5day_gsmap_aws_wrf(dt,stn)
+    df_wrf, df_aws, df_gsmap, dt_var_str = get_5day_gsmap_aws_wrf(dt,stn)
     
     # Plotting for each station
     plt.figure(dpi=300)
@@ -207,10 +207,10 @@ for i, stn in station_list.iterrows():
 
     fig, (ax1,ax2,ax3,ax4) = plt.subplots(ncols=1, nrows=4)
 
-    plot_comparison(dt, ax1, 'rain', 'Rainfall (mm/hr)', df_aws['rr'], wrf_vars['rain'], 0, df_gsmap['precip'])
-    plot_comparison(dt, ax2, 'temp', 'Temperature (C\N{DEGREE SIGN})', df_aws['temp'], wrf_vars['temp'], 15)
-    plot_comparison(dt, ax3, 'rh', 'Relative Humidity (%)', df_aws['rh'], wrf_vars['rh'], 10)
-    plot_comparison(dt, ax4, 'hi', 'Heat Index (C\N{DEGREE SIGN})', df_aws['hi'], wrf_vars['hi'], 15)
+    plot_comparison(dt, ax1, 'rain', 'Rainfall (mm/hr)', df_aws['rr'], df_wrf['rain'], 0, df_gsmap['precip'])
+    plot_comparison(dt, ax2, 'temp', 'Temperature (C\N{DEGREE SIGN})', df_aws['temp'], df_wrf['temp'], 15)
+    plot_comparison(dt, ax3, 'rh', 'Relative Humidity (%)', df_aws['rh'], df_wrf['rh'], 10)
+    plot_comparison(dt, ax4, 'hi', 'Heat Index (C\N{DEGREE SIGN})', df_aws['hi'], df_wrf['hi'], 15)
 
     ax1.set_title(
         f"Forecast ({stn['name']})\nInitialized at {dt_var_str} 08:00 PHT",

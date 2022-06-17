@@ -31,56 +31,34 @@ def get_5day_gsmap_aws_wrf(dt,stn):
             gsmap_df = xr.open_dataset(gsmap_fn)
             df_temp_gsmap = gsmap_df.sel(lon=stn['lon'], lat=stn['lat'], method="nearest").to_dataframe()
             df_temp_gsmap = df_temp_gsmap['precip'].reset_index(level='time')
+            
+            # Append daily data
+            df_gsmap = pd.concat([df_gsmap,df_temp_gsmap])
         
         aws_fn = aws_dir + 'stn_obs_24hr_' + str(dt_var) +'_08PHT.csv'
         if path.exists(aws_fn):
             aws_df = pd.read_csv(aws_fn,
                                 usecols=aws_cols, na_values="-999.000000")
             aws_df = aws_df[aws_df['name'] == stn['name']]
-        
-        # Append daily data
-        if path.exists(gsmap_fn):
-            df_gsmap = pd.concat([df_gsmap,df_temp_gsmap])
-        if path.exists(aws_fn):
+            
+            # Append daily data
             df_aws = pd.concat([df_aws,aws_df])
 
     df_gsmap = df_gsmap.reset_index(drop=True)
     df_aws = df_aws.reset_index(drop=True)
 
-    # Fill-in missing timesteps
-    df_aws['timestamp'] = pd.to_datetime(df_aws['timestamp'])
-    df_gsmap['time'] = pd.to_datetime(df_gsmap['time'])
-    dt_var = dt - timedelta(5)
-    dt_var_str = str(dt_var)
-    date_str = str(dt)
-    start = pd.to_datetime(dt_var_str + ' 09:00:00+08:00')
-    end = pd.to_datetime(date_str + ' 08:00:00+08:00')
-    dates = pd.date_range(start=start, end=end, freq='1H')
-
-    df_aws = df_aws.set_index('timestamp').reindex(dates).reset_index().reindex(columns=df_aws.columns)
-    cols = df_aws.columns.difference(['rr','temp','rh','hi'])
-    df_aws[cols] = df_aws[cols].ffill()
-    df_aws['timestamp'] = dates
-
-    df_gsmap= df_gsmap.set_index('time').reindex(dates).reset_index().reindex(columns=df_gsmap.columns)
-    cols = df_gsmap.columns.difference(['precip'])
-    df_gsmap[cols] = df_gsmap[cols].ffill()
-    df_gsmap['time'] = dates
-
-    print(df_aws)
-    print(df_gsmap)
-
-    # # Append 5-day station data
-    # df_all_stns_gsmap = pd.concat([df_all_stns_gsmap, df_gsmap]).reset_index(drop=True)
-    # df_all_stns_aws = pd.concat([df_all_stns_aws, df_aws]).reset_index(drop=True)
-
     # Add station name column
     df_gsmap.insert(loc = 0, column = 'name', value = stn['name'])
 
-    print('Saved ' + stn['name'] + ' data')
-
     # Initialize wrf data table
-    wrf_vars = {'rain': [], 'temp': [], 'rh': [], 'hi': []}
+    wrf_vars = {'timestamp': [], 'rain': [], 'temp': [], 'rh': [], 'hi': []}
+
+    # Set date variables
+    dt_var = dt - timedelta(5)
+    dt_var_str = str(dt_var)
+    date_str = str(dt)
+    dt_gsmap = dt - timedelta(1)
+    date_str_gsmap = str(dt_gsmap)
 
     # Access wrf fcst from 5 days ago
     wrf_fn = wrf_dir + 'forecast_lufft_stations_' + dt_var_str + '_08PHT.json'
@@ -96,4 +74,44 @@ def get_5day_gsmap_aws_wrf(dt,stn):
                 # Set missing values to NaN
                 wrf_vars[key] = [np.nan if v is None else v for v in wrf_vars[key]]
 
-    return wrf_vars, df_aws, df_gsmap, dt_var_str
+    df_wrf = pd.DataFrame(wrf_vars)
+    df_wrf.insert(loc = 0, column = 'name', value = stn['name'])
+
+    # Fill-in missing timesteps
+    if len(df_wrf) > 0:
+        df_wrf['timestamp'] = df_wrf['timestamp'] + '+08:00'
+        df_wrf['timestamp'] = pd.to_datetime(df_wrf['timestamp'])
+        start = pd.to_datetime(dt_var_str + ' 08:00:00+08:00')
+        end = pd.to_datetime(date_str + ' 07:00:00+08:00')
+        dates = pd.date_range(start=start, end=end, freq='1H')
+
+        df_wrf= df_wrf.set_index('timestamp').reindex(dates).reset_index().reindex(columns=df_wrf.columns)
+        cols = df_wrf.columns.difference(list(wrf_vars.keys())[1:])
+        df_wrf[cols] = df_wrf[cols].ffill()
+        df_wrf['timestamp'] = dates
+
+    if len(df_aws) > 0:
+        df_aws['timestamp'] = pd.to_datetime(df_aws['timestamp'])
+        start = pd.to_datetime(dt_var_str + ' 09:00:00+08:00')
+        end = pd.to_datetime(date_str + ' 08:00:00+08:00')
+        dates = pd.date_range(start=start, end=end, freq='1H')
+
+        df_aws = df_aws.set_index('timestamp').reindex(dates).reset_index().reindex(columns=df_aws.columns)
+        cols = df_aws.columns.difference(['rr','temp','rh','hi'])
+        df_aws[cols] = df_aws[cols].ffill()
+        df_aws['timestamp'] = dates
+
+    if len(df_gsmap) > 0:
+        df_gsmap['time'] = pd.to_datetime(df_gsmap['time'])
+        start = pd.to_datetime(dt_var_str + ' 00:00:00')
+        end = pd.to_datetime(date_str_gsmap + ' 23:00:00')
+        dates = pd.date_range(start=start, end=end, freq='1H')
+
+        df_gsmap= df_gsmap.set_index('time').reindex(dates).reset_index().reindex(columns=df_gsmap.columns)
+        cols = df_gsmap.columns.difference(['precip'])
+        df_gsmap[cols] = df_gsmap[cols].ffill()
+        df_gsmap['time'] = dates
+
+    print('Saved ' + stn['name'] + ' data')
+
+    return df_wrf, df_aws, df_gsmap, dt_var_str

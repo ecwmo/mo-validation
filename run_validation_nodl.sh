@@ -178,6 +178,9 @@ export MPLBACKEND="agg"; $PYTHONCONDA timeseries_plot.py
 # Plot 5-day time series WRF, AWS, and GSMaP
 export MPLBACKEND="agg"; $PYTHONCONDA timeseries_plot_stations.py
 
+# Plot statistical error metrics (month summary only, runs every 5th day of month)
+export MPLBACKEND="agg"; $PYTHONCONDA scalar_meaures.py
+
 echo "--------------------------"
 echo " Done with comparison!    "
 echo "--------------------------"
