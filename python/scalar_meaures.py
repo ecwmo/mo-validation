@@ -148,8 +148,8 @@ if today.day == 5:
         df_wrf_aws_metrics_allstns = pd.concat([df_wrf_aws_metrics_allstns, df_wrf_aws_metrics])
         df_wrf_gsmap_metrics_allstns = pd.concat([df_wrf_gsmap_metrics_allstns, df_wrf_gsmap_metrics])
 
-    df_wrf_aws_metrics_allstns = df_wrf_aws_metrics_allstns.median()
-    df_wrf_gsmap_metrics_allstns = df_wrf_gsmap_metrics_allstns.median()
+    df_wrf_aws_metrics_allstns = df_wrf_aws_metrics_allstns.mean()
+    df_wrf_gsmap_metrics_allstns = df_wrf_gsmap_metrics_allstns.mean()
 
     x = df_wrf_aws_metrics_allstns.round(2)
     y = df_wrf_gsmap_metrics_allstns.round(2)
@@ -170,7 +170,7 @@ if today.day == 5:
     rcolors = plt.cm.BuPu(np.full(len(row_headers), 0.1))
     ccolors = plt.cm.BuPu(np.full(len(column_headers), 0.1))
 
-    title_text = f'Statistical Error Metrics (Daily 5-day forecasts)\n median across all stations {lastMonth.strftime("%B %Y")}'
+    title_text = f'Statistical Error Metrics (Daily 5-day forecasts)\n mean across all stations {lastMonth.strftime("%B %Y")}'
     footer_text = 'ME: Mean Error, MAE: Mean Absolute Error, \nRMSE: Root Mean Square Error, $\mathregular{R^{2}}$: Coefficient of Determination'
 
     # figure plot settings
