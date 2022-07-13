@@ -24,7 +24,7 @@ cd "$VAL_DIR/gsmap" || exit
 
 rm ${VAL_DIR}/gsmap/dat/gsmap_nrt.${FCST_YY}${FCST_MM}${FCST_DD}*.dat
 # Download GSMaP data
-./download_gsmap.aria2.sh
+./download_gsmap.sh
 
 # Convert GSMaP .dat files to .nc
 ./convert_gsmap_nc.sh
