@@ -62,19 +62,9 @@ if [ $DOWNLOAD_INPUT -eq 1 ]; then
 fi
 
 # Plot GSMaP
-mkdir -p "$VAL_OUTDIR"
-cd "$VAL_DIR/grads" || exit
-
-# Edit GrADS plotting script
-
-sed -i "1s/.*/date='${DATE_STR1}PHT'/" gsmap_24hr_rain.gs
-sed -i "2s/.*/date2='${DATE_STR1} PHT'/" gsmap_24hr_rain.gs
-sed -i "3s/.*/date3='${FCST_YY}-${FCST_MM}-${FCST_DD}_$FCST_ZZ'/" gsmap_24hr_rain.gs
-sed -i "4s~.*~outdir='${VAL_OUTDIR}'~" gsmap_24hr_rain.gs
-sed -i "5s/.*/data='${GSMAP_DATA}'/" gsmap_24hr_rain.gs
-sed -i "6s~.*~'sdfopen ${VAL_DIR}/gsmap/nc/gsmap_'data'_'date3'_ph.nc'~" gsmap_24hr_rain.gs
-
-grads -pbc gsmap_24hr_rain.gs
+gsmap_in_nc=nc/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_ph.nc
+gsmap_out_img=$VAL_OUTDIR/gsmap-24hr_rain_day1_${DATE_STR1}PHT.png
+$PYTHON plot_gsmap_24hr_rain.py -i "$gsmap_in_nc" -o "$gsmap_out_img"
 
 echo "--------------------------"
 echo " Done with GSMaP!         "
