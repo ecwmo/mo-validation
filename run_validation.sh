@@ -53,12 +53,12 @@ echo "--------------------------"
 cd "$VAL_DIR/gsmap" || exit
 
 if [ $DOWNLOAD_INPUT -eq 1 ]; then
-  rm ${VAL_DIR}/gsmap/dat/gsmap_nrt.${FCST_YY}${FCST_MM}${FCST_DD}*.dat
   # Download GSMaP data
   ./download_gsmap.sh
-
-  # Convert GSMaP .dat files to .nc
-  ./convert_gsmap_nc.sh
+  # Convert GSMaP .gz files to .nc
+  $PYTHON convert_gsmap_nc.py -i "dat/$FCST_YYYYMMDD/$FCST_ZZ"
+  # Remove .gz files
+  rm -rf "dat/$FCST_YYYYMMDD/$FCST_ZZ"
 fi
 
 # Plot GSMaP
@@ -72,7 +72,7 @@ sed -i "2s/.*/date2='${DATE_STR1} PHT'/" gsmap_24hr_rain.gs
 sed -i "3s/.*/date3='${FCST_YY}-${FCST_MM}-${FCST_DD}_$FCST_ZZ'/" gsmap_24hr_rain.gs
 sed -i "4s~.*~outdir='${VAL_OUTDIR}'~" gsmap_24hr_rain.gs
 sed -i "5s/.*/data='${GSMAP_DATA}'/" gsmap_24hr_rain.gs
-sed -i "6s~.*~'sdfopen ${VAL_DIR}/gsmap/nc/gsmap_'data'_'date3'.nc'~" gsmap_24hr_rain.gs
+sed -i "6s~.*~'sdfopen ${VAL_DIR}/gsmap/nc/gsmap_'data'_'date3'_ph.nc'~" gsmap_24hr_rain.gs
 
 grads -pbc gsmap_24hr_rain.gs
 

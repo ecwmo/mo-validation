@@ -54,7 +54,7 @@ while [ "$CDATE" != "$EDATE" ]; do
     URL="${FTP_DIR}/${DIR_SOURCE}/${FILE_NAME}"
   fi
   echo "${URL}" >>"$DL_LIST"
-  echo -e "\tdir=${GSMAPDIR}/dat" >>"$DL_LIST"
+  echo -e "\tdir=${GSMAPDIR}/dat/$FCST_YYYYMMDD/FCST_ZZ" >>"$DL_LIST"
   CDATE=$(date -d "$CDATE 1 hour" +'%Y-%m-%d %H:%M:%S')
 done
 
@@ -80,10 +80,6 @@ echo "${DATE_STR},${DL_DURATION},${TOT_SIZE},${DL_SPEED}" >>"$DL_SPEED_LOG_FILE"
 # Cleanup
 rm -f "$DL_LIST"
 rm -f "$DL_OUT"
-
-# Unzip *.gz GSMaP files
-cd "${GSMAPDIR}/dat" || exit
-gzip -d ./*.gz
 
 echo "-----------------------------------"
 echo " Finished downloading gsmap files! "
