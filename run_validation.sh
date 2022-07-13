@@ -1,6 +1,36 @@
 #!/bin/bash
 #export FCST_YYYYMMDD="20200310"; export FCST_ZZ="00"; . $HOME/forecast/set_cron_env.sh; . $SCRIPT_DIR/set_date_vars.sh; . /home/modelman/forecast/validation/run_validation.sh
 
+#################### CONSTANTS ####################
+DOWNLOAD_INPUT=1
+###################################################
+
+#################### FUNCTIONS ####################
+function show_usage() {
+  printf "Usage: %s [options [parameters]]\n" "$0"
+  printf "\n"
+  printf "Options:\n"
+  printf " --no-download, Do not download inputs (GSMAP, etc...)\n"
+  printf " -h|--help, Print help\n"
+
+  return 0
+}
+###################################################
+
+################### PROCESS ARGS ###################
+while [ -n "$1" ]; do
+  case "$1" in
+  --no-download)
+    DOWNLOAD_INPUT=0
+    ;;
+  *)
+    show_usage
+    ;;
+  esac
+  shift
+done
+###################################################
+
 export VAL_DIR=$MAINDIR/validation
 #export VAL_OUTDIR=$VAL_DIR/output/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ
 export VAL_OUTDIR=${OUTDIR}/validation/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ
@@ -22,12 +52,14 @@ echo "--------------------------"
 
 cd "$VAL_DIR/gsmap" || exit
 
-rm ${VAL_DIR}/gsmap/dat/gsmap_nrt.${FCST_YY}${FCST_MM}${FCST_DD}*.dat
-# Download GSMaP data
-./download_gsmap.sh
+if [ $DOWNLOAD_INPUT -eq 1 ]; then
+  rm ${VAL_DIR}/gsmap/dat/gsmap_nrt.${FCST_YY}${FCST_MM}${FCST_DD}*.dat
+  # Download GSMaP data
+  ./download_gsmap.sh
 
-# Convert GSMaP .dat files to .nc
-./convert_gsmap_nc.sh
+  # Convert GSMaP .dat files to .nc
+  ./convert_gsmap_nc.sh
+fi
 
 # Plot GSMaP
 mkdir -p "$VAL_OUTDIR"
