@@ -166,6 +166,7 @@ cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 
+set_cron_env.sh
 
 /aws/
 /fnl/

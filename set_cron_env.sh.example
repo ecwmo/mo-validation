@@ -1,0 +1,10 @@
+#!/bin/bash
+
+export VAL_DIR=$MAINDIR/validation
+
+export VAL_OUTDIR=${OUTDIR}/validation/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ
+# options : gauge , nrt , now [can only be run at 9:00 PHT sharp]
+export GSMAP_DATA="gauge"
+export STATION_ID="MOIP"
+export STATION_NAME="Manila Observatory"
+export CITY_ID="NCR"

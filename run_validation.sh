@@ -1,5 +1,4 @@
 #!/bin/bash
-#export FCST_YYYYMMDD="20200310"; export FCST_ZZ="00"; . $HOME/forecast/set_cron_env.sh; . $SCRIPT_DIR/set_date_vars.sh; . /home/modelman/forecast/validation/run_validation.sh
 
 #################### CONSTANTS ####################
 DOWNLOAD_INPUT=1
@@ -30,15 +29,6 @@ while [ -n "$1" ]; do
   shift
 done
 ###################################################
-
-export VAL_DIR=$MAINDIR/validation
-#export VAL_OUTDIR=$VAL_DIR/output/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ
-export VAL_OUTDIR=${OUTDIR}/validation/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ
-# options : gauge , nrt , now [can only be run at 9:00 PHT sharp]
-export GSMAP_DATA="gauge"
-export STATION_ID="MOIP"
-export STATION_NAME="Manila Observatory"
-export CITY_ID="NCR"
 
 DATE_STR1=$(date -d "${FCST_YY}-${FCST_MM}-${FCST_DD} $FCST_ZZ:00:00 8 hours" +'%Y-%m-%d_%H')
 read -r FCST_YY_PHT FCST_MM_PHT FCST_DD_PHT FCST_HH_PHT <<<"${DATE_STR1//[-_]/ }"
