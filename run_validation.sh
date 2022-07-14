@@ -92,18 +92,9 @@ echo " Processing comparison plots...  "
 echo "---------------------------------"
 
 # 24-hr difference plot (WRF-GSMaP, GFS-GSMaP)
-cd "$VAL_DIR/grads" || exit
-
-ln -s "${WRF_ENS}/wrffcst_d01_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_ens.nc" ${VAL_DIR}/grads/nc/.
-
-# Edit GrADS plotting script
-sed -i "5s/.*/date='${DATE_STR1}PHT'/" bias_24hr_rain.gs
-sed -i "6s/.*/date2='${DATE_STR1} PHT'/" bias_24hr_rain.gs
-sed -i "7s/.*/date3='${FCST_YY}-${FCST_MM}-${FCST_DD}_$FCST_ZZ'/" bias_24hr_rain.gs
-sed -i "8s~.*~outdir='${VAL_OUTDIR}'~" bias_24hr_rain.gs
-sed -i "9s~.*~wrfdir='nc'~" bias_24hr_rain.gs
-
-grads -pbc bias_24hr_rain.gs
+cd "$VAL_DIR/scripts/compare" || exit
+gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
+$PYTHON plot_24hr_rain_diff.py -i "$gsmap_in_nc" -o "$VAL_OUTDIR"
 
 # 24-hr GSMaP versus TRMM Climatology
 mkdir -p "${OUTDIR}/climatology/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ"
