@@ -10,6 +10,10 @@ export CITY_ID="NCR"
 
 export TEMP_DIR=${VAL_DIR}/.tmp
 
+export GSMAP_NC_DIR=${VAL_DIR}/input/gsmap
+export GFS_NC_DIR=${VAL_DIR}/input/gfs
+export PYWRF_NC_DIR=${VAL_DIR}/input/wrf_out
+
 export CONDA_PREFIX=${VAL_DIR}/venv
 export MPLBACKEND="agg"
 export PYTHONPATH=${VAL_DIR}/scripts:$PYTHONPATH
