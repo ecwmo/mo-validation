@@ -68,51 +68,19 @@ echo "--------------------------"
 echo " Processing GFS files...  "
 echo "--------------------------"
 
-cd "$VAL_DIR/gfs" || exit
+cd "$VAL_DIR/scripts/gfs" || exit
 
 # Convert GFS precipitation grb files to .nc
-./convert_gfs_nc.sh
+$PYTHON convert_gfs_nc.py -i "$GFSDIR" -o "$VAL_DIR/input/gfs"
 
 # Plot GFS
-mkdir -p "$VAL_OUTDIR"
-cd "$VAL_DIR/grads" || exit
+gfs_in_nc=$VAL_DIR/input/gfs/gfs_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
+$PYTHON plot_gfs_24hr_rain.py -i "$gfs_in_nc" -o "$VAL_OUTDIR"
+$PYTHON plot_gfs_acc_rain.py -i "$gfs_in_nc" -o "$VAL_OUTDIR"
 
-# Edit GrADS plotting script
-DATE_STR1=$(date -d "${FCST_YY}-${FCST_MM}-${FCST_DD} $FCST_ZZ:00:00 8 hours" +'%Y-%m-%d_%H')
-read -r FCST_YY_PHT FCST_MM_PHT FCST_DD_PHT FCST_HH_PHT <<<"${DATE_STR1//[-_]/ }"
-DATE_STR2=$(date -d "${FCST_YY}-${FCST_MM}-${FCST_DD} $FCST_ZZ:00:00 32 hours" +'%Y-%m-%d_%H')
-DATE_STR3=$(date -d "${FCST_YY}-${FCST_MM}-${FCST_DD} $FCST_ZZ:00:00 56 hours" +'%Y-%m-%d_%H')
-DATE_STR4=$(date -d "${FCST_YY}-${FCST_MM}-${FCST_DD} $FCST_ZZ:00:00 80 hours" +'%Y-%m-%d_%H')
-
-sed -i "1s/.*/date='${DATE_STR1}PHT'/" gfs_24hr_rain.gs
-sed -i "2s/.*/date2='${DATE_STR1} PHT'/" gfs_24hr_rain.gs
-sed -i "3s/.*/date3='${DATE_STR1} to ${DATE_STR2} PHT'/" gfs_24hr_rain.gs
-sed -i "4s/.*/date4='${DATE_STR2} to ${DATE_STR3} PHT'/" gfs_24hr_rain.gs
-sed -i "5s/.*/date5='${DATE_STR3} to ${DATE_STR4} PHT'/" gfs_24hr_rain.gs
-sed -i "6s~.*~outdir='${VAL_OUTDIR}'~" gfs_24hr_rain.gs
-sed -i "7s~.*~gfsdir='${VAL_DIR}/gfs/nc/${FCST_YY}${FCST_MM}${FCST_DD}/${FCST_ZZ}'~" gfs_24hr_rain.gs
-
-grads -pbc gfs_24hr_rain.gs
-
-sed -i "1s/.*/date='${DATE_STR1}PHT'/" gfs_acc_rain.gs
-sed -i "2s/.*/date2='${DATE_STR1} PHT'/" gfs_acc_rain.gs
-sed -i "3s/.*/date3='${DATE_STR1} to ${DATE_STR2} PHT'/" gfs_acc_rain.gs
-sed -i "4s/.*/date4='${DATE_STR2} to ${DATE_STR3} PHT'/" gfs_acc_rain.gs
-sed -i "5s/.*/date5='${DATE_STR3} to ${DATE_STR4} PHT'/" gfs_acc_rain.gs
-sed -i "6s~.*~outdir='${VAL_OUTDIR}'~" gfs_acc_rain.gs
-sed -i "7s~.*~gfsdir='${VAL_DIR}/gfs/nc/${FCST_YY}${FCST_MM}${FCST_DD}/${FCST_ZZ}'~" gfs_acc_rain.gs
-
-grads -pbc gfs_acc_rain.gs
-
-# Get hourly data over stations
-rm -rf $VAL_OUTDIR/gfs_${DATE_STR1}PHT*.csv
-
-# Edit GrADS extract script
-sed -i "1s/.*/date='${DATE_STR1}PHT'/" gfs_extract_rain.gs
-sed -i "2s~.*~outdir='${VAL_OUTDIR}'~" gfs_extract_rain.gs
-sed -i "3s~.*~gfsdir='${VAL_DIR}/gfs/nc/${FCST_YY}${FCST_MM}${FCST_DD}/${FCST_ZZ}'~" gfs_extract_rain.gs
-
-grads -pbc gfs_extract_rain.gs
+# Extract GFS
+gfs_in_nc=$VAL_DIR/input/gfs/gfs_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}.nc
+$PYTHON extract_gfs_24hr_rain.py -i "$gfs_in_nc" -o "$VAL_OUTDIR"
 
 echo "--------------------------"
 echo " Done with GFS!           "

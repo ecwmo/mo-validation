@@ -174,7 +174,6 @@ set_cron_env.sh
 
 /aws/
 /fnl/
-/gfs/
 /grads/
 /contingency/*.nc
 /timeseries/timeseries_plot_aws_old.py
