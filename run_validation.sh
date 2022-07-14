@@ -40,7 +40,7 @@ echo "--------------------------"
 echo " Processing GSMaP files  "
 echo "--------------------------"
 
-cd "$VAL_DIR/gsmap" || exit
+cd "$VAL_DIR/scripts/gsmap" || exit
 
 if [ $DOWNLOAD_INPUT -eq 1 ]; then
   export GSMAP_TEMP_DIR="$TEMP_DIR/gsmap/$FCST_YYYYMMDD/$FCST_ZZ"

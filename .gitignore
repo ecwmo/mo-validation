@@ -167,11 +167,13 @@ cython_debug/
 # End of https://www.toptal.com/developers/gitignore/api/python
 
 set_cron_env.sh
+/.bak/
+/input/
+/output/
 
 /aws/
 /fnl/
 /gfs/
 /grads/
-/gsmap/
 /contingency/*.nc
 /timeseries/timeseries_plot_aws_old.py
