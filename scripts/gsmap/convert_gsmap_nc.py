@@ -25,6 +25,7 @@ def convert_to_nc(gz_file, var_name="precip"):
 
 def proc(in_dir, out_dir):
     in_files = list(in_dir.glob("*.dat.gz"))
+    in_files.sort()
     ds = [convert_to_nc(f) for f in in_files]
     ds = xr.concat(ds, dim="time")
 
