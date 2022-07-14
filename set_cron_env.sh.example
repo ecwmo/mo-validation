@@ -12,4 +12,5 @@ export TEMP_DIR=${VAL_DIR}/.tmp
 
 export CONDA_PREFIX=${VAL_DIR}/venv
 export MPLBACKEND="agg"
+export PYTHONPATH=${VAL_DIR}/scripts:$PYTHONPATH
 export PYTHON=${CONDA_PREFIX}/bin/python

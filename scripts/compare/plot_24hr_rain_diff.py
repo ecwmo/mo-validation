@@ -7,27 +7,16 @@ import pandas as pd
 import salem
 import xesmf as xe
 
-from cartopy import crs as ccrs
-from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
-
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+from helpers.plot import plot_map, XLIM, YLIM
 
 wrf_nc_dir = Path(os.getenv("PYWRF_NC_DIR"))
 gfs_nc_dir = Path(os.getenv("GFS_NC_DIR"))
 
 tz = pytz.timezone("Asia/Manila")
-plot_proj = ccrs.PlateCarree()
 
-lon_formatter = LongitudeFormatter(zero_direction_label=True, degree_symbol="")
-lat_formatter = LatitudeFormatter(degree_symbol="")
-
-lon_labels = range(120, 130, 5)
-lat_labels = range(5, 25, 5)
-xlim = (116, 128)
-ylim = (5, 20)
-
-var_name = "precip"
 var_opts = [
     {
         "name": "wrf-gsmap",
@@ -64,8 +53,9 @@ var_opts = [
 ]
 
 
-def plot_map(in_file, out_dir):
+def main(in_file, out_dir):
     gsmap = salem.open_xr_dataset(in_file)["precip"]
+
     init_dt_utc = pd.to_datetime(
         "_".join(in_file.name.split("_")[2:4]), format="%Y-%m-%d_%H", utc=True
     )
@@ -81,7 +71,7 @@ def plot_map(in_file, out_dir):
 
     wrf_rain = wrf_ds["rain"].isel(time=(wrf_ds.time.dt.day == init_dt_utc.day))
     wrf_rain = wrf_rain.mean("ens").sum("time")
-    wrf_rain = wrf_rain.sel(lat=slice(*ylim), lon=slice(*xlim))
+    wrf_rain = wrf_rain.sel(lat=slice(*YLIM), lon=slice(*XLIM))
 
     gfs_nc_file = gfs_nc_dir / f"gfs_{init_dt_utc:%Y-%m-%d_%H}_day.nc"
     if not gfs_nc_file.is_file():
@@ -97,44 +87,10 @@ def plot_map(in_file, out_dir):
     diff_das = [wrf_rain - gsmap_re, gfs_rain_re - gsmap_re]
 
     for ida, da in enumerate(diff_das):
-        levels = var_opts[ida]["levels"]
-        colors = var_opts[ida]["colors"]
-
-        fig = plt.figure(figsize=(8, 9), constrained_layout=True)
-        ax = plt.axes(projection=plot_proj)
-        ax.xaxis.set_major_formatter(lon_formatter)
-        ax.yaxis.set_major_formatter(lat_formatter)
-        ax.set_xticks(lon_labels, crs=plot_proj)
-        ax.set_yticks(lat_labels, crs=plot_proj)
-
-        plt_title = f"{var_opts[ida]['title']}\nfrom {init_dt_str} PHT"
-        # plt_annotation = f"GSMaP (gauge calibrated) at {init_dt_str} PHT."
-
-        fig.suptitle(plt_title, fontsize=14)
-
-        p = da.plot.contourf(
-            ax=ax,
-            transform=plot_proj,
-            levels=levels,
-            colors=colors,
-            add_labels=False,
-            extend="both",
-            cbar_kwargs=dict(shrink=0.5),
-        )
-
-        p.colorbar.ax.set_title(f"[{var_opts[ida]['units']}]", pad=20, fontsize=10)
-        ax.coastlines()
-        ax.set_extent((*xlim, *ylim))
-
-        # ax.annotate(plt_annotation, xy=(5, -30), xycoords="axes points", fontsize=8)
-        ax.annotate(
-            "observatory.ph",
-            xy=(10, 10),
-            xycoords="axes points",
-            fontsize=10,
-            bbox=dict(boxstyle="square,pad=0.3", alpha=0.5),
-            alpha=0.5,
-        )
+        plt_opts = var_opts[ida]
+        plt_opts["title"] = f"{plt_opts['title']}\nfrom {init_dt_str} PHT"
+        # plt_opts["annotation"] = f"GSMaP (gauge calibrated) at {init_dt_str} PHT."
+        fig = plot_map(da, var_opts[ida])
 
         out_file_pref = var_opts[ida]["name"]
         out_file = out_dir / f"{out_file_pref}-24hr_rain_day0_{init_dt_str2}PHT.png"
@@ -159,4 +115,4 @@ if __name__ == "__main__":
         elif opt in ("-o", "--odir"):
             out_dir = Path(arg)
             out_dir.mkdir(parents=True, exist_ok=True)
-    plot_map(in_file, out_dir)
+    main(in_file, out_dir)
