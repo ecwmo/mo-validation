@@ -24,7 +24,7 @@ ylim = (5, 20)
 var_name = "precip"
 var_opts = {
     "title": "GSMaP 24-hr Total Rainfall (mm/day)",
-    "units": "mm/day",
+    "units": "mm/dy",
     "levels": [5, 10, 20, 30, 50, 100, 150, 200, 250],
     "colors": [
         "#ffffff",
@@ -41,10 +41,13 @@ var_opts = {
 }
 
 
-def plot_map(in_file, out_file):
+def plot_map(in_file, out_dir):
     ds = salem.open_xr_dataset(in_file)
-    init_dt = pd.to_datetime(ds.time.values[0], utc=True).astimezone(tz)
+    init_dt = pd.to_datetime(
+        "_".join(in_file.name.split("_")[2:4]), format="%Y-%m-%d_%H", utc=True
+    ).astimezone(tz)
     init_dt_str = init_dt.strftime("%Y-%m-%d %H")
+    init_dt_str2 = init_dt.strftime("%Y-%m-%d_%H")
 
     levels = var_opts["levels"]
     colors = var_opts["colors"]
@@ -56,7 +59,7 @@ def plot_map(in_file, out_file):
     ax.set_xticks(lon_labels, crs=plot_proj)
     ax.set_yticks(lat_labels, crs=plot_proj)
 
-    da = ds[var_name].sum("time")
+    da = ds[var_name]
 
     plt_title = f"{var_opts['title']}\nfrom {init_dt_str} PHT"
     plt_annotation = f"GSMaP (gauge calibrated) at {init_dt_str} PHT."
@@ -87,25 +90,26 @@ def plot_map(in_file, out_file):
         alpha=0.5,
     )
 
+    out_file = out_dir / f"gsmap-24hr_rain_day0_{init_dt_str2}PHT.png"
     fig.savefig(out_file, bbox_inches="tight", dpi=300)
     plt.close("all")
 
 
 if __name__ == "__main__":
     in_file = Path("dat")
-    out_file = Path("img")
+    out_dir = Path("img")
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["ifile=", "ofile="])
+        opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["ifile=", "odir="])
     except getopt.GetoptError:
-        print("plot_gsmap_24hr_rain.py -i <input file> -o <output file>")
+        print("plot_gsmap_24hr_rain.py -i <input file> -o <output dir>")
         sys.exit(2)
     for opt, arg in opts:
         if opt == "-h":
-            print("plot_gsmap_24hr_rain.py -i <input file> -o <output file>")
+            print("plot_gsmap_24hr_rain.py -i <input file> -o <output dir>")
             sys.exit()
         elif opt in ("-i", "--ifile"):
             in_file = Path(arg)
-        elif opt in ("-o", "--ofile"):
-            out_file = Path(arg)
-            out_file.parent.mkdir(parents=True, exist_ok=True)
-    plot_map(in_file, out_file)
+        elif opt in ("-o", "--odir"):
+            out_dir = Path(arg)
+            out_dir.mkdir(parents=True, exist_ok=True)
+    plot_map(in_file, out_dir)

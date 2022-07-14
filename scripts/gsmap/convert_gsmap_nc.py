@@ -8,7 +8,7 @@ import xarray as xr
 import salem
 
 
-def convert_to_nc(gz_file, var_name="precip"):
+def convert_to_xr(gz_file, var_name="precip"):
     gz = gzip.GzipFile(gz_file, "rb")
     dd = np.frombuffer(gz.read(), dtype=np.float32)
     dat = dd.reshape((1, 1200, 3600))
@@ -26,7 +26,7 @@ def convert_to_nc(gz_file, var_name="precip"):
 def proc(in_dir, out_dir):
     in_files = list(in_dir.glob("*.dat.gz"))
     in_files.sort()
-    ds = [convert_to_nc(f) for f in in_files]
+    ds = [convert_to_xr(f) for f in in_files]
     ds = xr.concat(ds, dim="time")
 
     ds.attrs["Conventions"] = "CF-1.7"
@@ -45,14 +45,14 @@ def proc(in_dir, out_dir):
         "-".join(in_files[0].name.split(".")[1:3]), format="%Y%m%d-%H00"
     )
 
-    print("Saving PH nc...")
-    out_file = out_dir / f"{out_file_prefix}_{ts:%Y-%m-%d_%H}_ph.nc"
+    print("Saving nc...")
+    out_file = out_dir / f"{out_file_prefix}_{ts:%Y-%m-%d_%H}.nc"
     out_file.parent.mkdir(parents=True, exist_ok=True)
     ds2 = ds.sel(lon=slice(115, 129), lat=slice(4.8, 21))
     ds2.to_netcdf(out_file)
     ds2 = salem.open_xr_dataset(out_file)
     print("Saving daily accum precip...")
-    out_file = out_dir / f"{out_file_prefix}_{ts:%Y-%m-%d_%H}_day_ph.nc"
+    out_file = out_dir / f"{out_file_prefix}_{ts:%Y-%m-%d_%H}_day.nc"
     out_file.parent.mkdir(parents=True, exist_ok=True)
     ds3 = ds2.sum("time", keep_attrs=True)
     ds3.to_netcdf(out_file)

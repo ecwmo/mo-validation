@@ -54,9 +54,8 @@ if [ $DOWNLOAD_INPUT -eq 1 ]; then
 fi
 
 # Plot GSMaP
-gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_ph.nc
-gsmap_out_img=$VAL_OUTDIR/gsmap-24hr_rain_day1_${DATE_STR1}PHT.png
-$PYTHON plot_gsmap_24hr_rain.py -i "$gsmap_in_nc" -o "$gsmap_out_img"
+gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
+$PYTHON plot_gsmap_24hr_rain.py -i "$gsmap_in_nc" -o "$VAL_OUTDIR"
 
 echo "--------------------------"
 echo " Done with GSMaP!         "
