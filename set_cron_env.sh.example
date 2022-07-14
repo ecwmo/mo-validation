@@ -8,6 +8,8 @@ export STATION_ID="MOIP"
 export STATION_NAME="Manila Observatory"
 export CITY_ID="NCR"
 
+export TEMP_DIR=${VAL_DIR}/.tmp
+
 export CONDA_PREFIX=${VAL_DIR}/venv
 export MPLBACKEND="agg"
 export PYTHON=${CONDA_PREFIX}/bin/python

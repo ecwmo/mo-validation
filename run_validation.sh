@@ -43,12 +43,14 @@ echo "--------------------------"
 cd "$VAL_DIR/gsmap" || exit
 
 if [ $DOWNLOAD_INPUT -eq 1 ]; then
+  export GSMAP_TEMP_DIR="$TEMP_DIR/gsmap/$FCST_YYYYMMDD/$FCST_ZZ"
+  mkdir -p "$GSMAP_TEMP_DIR"
   # Download GSMaP data
   ./download_gsmap.sh
   # Convert GSMaP .gz files to .nc
-  $PYTHON convert_gsmap_nc.py -i "dat/$FCST_YYYYMMDD/$FCST_ZZ"
+  $PYTHON convert_gsmap_nc.py -i "$GSMAP_TEMP_DIR"
   # Remove .gz files
-  rm -rf "dat/$FCST_YYYYMMDD/$FCST_ZZ"
+  rm -rf "${GSMAP_TEMP_DIR?:}"
 fi
 
 # Plot GSMaP
@@ -226,8 +228,6 @@ echo "---------------------------"
 # -------------------------------------------- #
 #              CLEAN UP FILES                  #
 # -------------------------------------------- #
-# rm ${VAL_DIR}/grads/nc/*.nc
-rm ${VAL_DIR}/gsmap/dat/*.dat
 # rm ${VAL_DIR}/gsmap/nc/*.nc
 rm ${VAL_DIR}/gsmap/log/*.log
 rm ${VAL_DIR}/gfs/nc/${FCST_YY}${FCST_MM}${FCST_DD}/${FCST_ZZ}/*.nc

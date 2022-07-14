@@ -54,7 +54,7 @@ while [ "$CDATE" != "$EDATE" ]; do
     URL="${FTP_DIR}/${DIR_SOURCE}/${FILE_NAME}"
   fi
   echo "${URL}" >>"$DL_LIST"
-  echo -e "\tdir=${GSMAPDIR}/dat/$FCST_YYYYMMDD/FCST_ZZ" >>"$DL_LIST"
+  echo -e "\tdir=$GSMAP_TEMP_DIR" >>"$DL_LIST"
   CDATE=$(date -d "$CDATE 1 hour" +'%Y-%m-%d %H:%M:%S')
 done
 
