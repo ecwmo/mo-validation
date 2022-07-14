@@ -48,13 +48,13 @@ if [ $DOWNLOAD_INPUT -eq 1 ]; then
   # Download GSMaP data
   ./download_gsmap.sh
   # Convert GSMaP .gz files to .nc
-  $PYTHON convert_gsmap_nc.py -i "$GSMAP_TEMP_DIR"
+  $PYTHON convert_gsmap_nc.py -i "$GSMAP_TEMP_DIR" -o "$VAL_DIR/input/gsmap"
   # Remove .gz files
   rm -rf "${GSMAP_TEMP_DIR?:}"
 fi
 
 # Plot GSMaP
-gsmap_in_nc=nc/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_ph.nc
+gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_ph.nc
 gsmap_out_img=$VAL_OUTDIR/gsmap-24hr_rain_day1_${DATE_STR1}PHT.png
 $PYTHON plot_gsmap_24hr_rain.py -i "$gsmap_in_nc" -o "$gsmap_out_img"
 
