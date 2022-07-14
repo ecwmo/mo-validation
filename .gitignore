@@ -168,6 +168,7 @@ cython_debug/
 
 set_cron_env.sh
 /.bak/
+/.tmp/
 /input/
 /output/
 
