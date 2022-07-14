@@ -14,6 +14,9 @@ export GSMAP_NC_DIR=${VAL_DIR}/input/gsmap
 export GFS_NC_DIR=${VAL_DIR}/input/gfs
 export PYWRF_NC_DIR=${VAL_DIR}/input/wrf_out
 
+export TRMM_CLIM_DIR=${VAL_DIR}/input/climatology/trmm
+export APHRODITE_CLIM_DIR=${VAL_DIR}/input/climatology/aphrodite
+
 export CONDA_PREFIX=${VAL_DIR}/venv
 export MPLBACKEND="agg"
 export PYTHONPATH=${VAL_DIR}/scripts:$PYTHONPATH

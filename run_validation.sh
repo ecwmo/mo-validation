@@ -97,25 +97,11 @@ gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCS
 $PYTHON plot_24hr_rain_diff.py -i "$gsmap_in_nc" -o "$VAL_OUTDIR"
 
 # 24-hr GSMaP versus TRMM Climatology
-mkdir -p "${OUTDIR}/climatology/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ"
-
-cd "$SCRIPT_DIR/grads" || exit
-
-# Edit GrADS plotting script
-DATE_STRM=$(date -d "${FCST_YY}-${FCST_MM}-${FCST_DD} $FCST_ZZ:00:00 8 hours" +'%Y-%B-%d_%H')
-read -r FCST_YY_PHT2 FCST_MM_PHT2 FCST_DD_PHT2 FCST_HH_PHT2 <<<"${DATE_STR1//[-_]/ }"
-DATE_STR2=$(date -d "${FCST_YY}-${FCST_MM}-${FCST_DD} $FCST_ZZ:00:00 32 hours" +'%Y-%m-%d_%H')
-
-sed -i "1s/.*/date='${DATE_STR1}PHT'/" gsmap_clim.gs
-sed -i "2s~.*~d1title='${DATE_STR1} to ${DATE_STR2} PHT'~" gsmap_clim.gs
-sed -i "3s~.*~outdir='${OUTDIR}/climatology/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ'~" gsmap_clim.gs
-sed -i "4s/.*/date2='${DATE_STR1} PHT'/" gsmap_clim.gs
-sed -i "6s~.*~'sdfopen ${VAL_DIR}/gsmap/nc/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_ph.nc'~" gsmap_clim.gs
-sed -i "9s~.*~climdir='${MAINDIR}/climatology/frJulie/01_forForecasting'~" gsmap_clim.gs
-sed -i "10s~.*~month='${FCST_MM_PHT}'~" gsmap_clim.gs
-sed -i "11s~.*~monname='${FCST_MM_PHT2}'~" gsmap_clim.gs
-
-grads -pbc gsmap_clim.gs
+cd "$VAL_DIR/scripts/gsmap" || exit
+gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
+clim_out_dir="${OUTDIR}/climatology/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ"
+mkdir -p "clim_out_dir"
+$PYTHON plot_gsmap_clim.py -i "$gsmap_in_nc" -o "$clim_out_dir"
 
 # 24-hr timeseries plot (WRF, GFS, GSMaP)
 cd "$VAL_DIR/python" || exit
