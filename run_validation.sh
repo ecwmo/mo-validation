@@ -57,6 +57,10 @@ fi
 gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
 $PYTHON plot_gsmap_24hr_rain.py -i "$gsmap_in_nc" -o "$VAL_OUTDIR"
 
+# Extract GSMaP
+gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}.nc
+$PYTHON extract_gsmap_24hr_rain.py -i "$gsmap_in_nc" -o "$VAL_OUTDIR"
+
 echo "--------------------------"
 echo " Done with GSMaP!         "
 echo "--------------------------"
