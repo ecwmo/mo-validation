@@ -30,8 +30,6 @@ while [ -n "$1" ]; do
 done
 ###################################################
 
-DATE_STR1=$(date -d "${FCST_YY}-${FCST_MM}-${FCST_DD} $FCST_ZZ:00:00 8 hours" +'%Y-%m-%d_%H')
-read -r FCST_YY_PHT FCST_MM_PHT FCST_DD_PHT FCST_HH_PHT <<<"${DATE_STR1//[-_]/ }"
 # -------------------------------------------- #
 #                 GSMaP                        #
 # -------------------------------------------- #
@@ -48,17 +46,17 @@ if [ $DOWNLOAD_INPUT -eq 1 ]; then
   # Download GSMaP data
   ./download_gsmap.sh
   # Convert GSMaP .gz files to .nc
-  $PYTHON convert_gsmap_nc.py -i "$GSMAP_TEMP_DIR" -o "$VAL_DIR/input/gsmap"
+  $PYTHON convert_gsmap_nc.py -i "$GSMAP_TEMP_DIR" -o "$GSMAP_NC_DIR"
   # Remove .gz files
   rm -rf "${GSMAP_TEMP_DIR?:}"
 fi
 
 # Plot GSMaP
-gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
+gsmap_in_nc=$GSMAP_NC_DIR/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
 $PYTHON plot_gsmap_24hr_rain.py -i "$gsmap_in_nc" -o "$VAL_OUTDIR"
 
 # Extract GSMaP
-gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}.nc
+gsmap_in_nc=$GSMAP_NC_DIR/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}.nc
 $PYTHON extract_gsmap_24hr_rain.py -i "$gsmap_in_nc" -o "$VAL_OUTDIR"
 
 echo "--------------------------"
@@ -74,15 +72,15 @@ echo "--------------------------"
 cd "$VAL_DIR/scripts/gfs" || exit
 
 # Convert GFS precipitation grb files to .nc
-$PYTHON convert_gfs_nc.py -i "$GFSDIR" -o "$VAL_DIR/input/gfs"
+$PYTHON convert_gfs_nc.py -i "$GFSDIR" -o "$GFS_NC_DIR"
 
 # Plot GFS
-gfs_in_nc=$VAL_DIR/input/gfs/gfs_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
+gfs_in_nc=$GFS_NC_DIR/gfs_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
 $PYTHON plot_gfs_24hr_rain.py -i "$gfs_in_nc" -o "$VAL_OUTDIR"
 $PYTHON plot_gfs_acc_rain.py -i "$gfs_in_nc" -o "$VAL_OUTDIR"
 
 # Extract GFS
-gfs_in_nc=$VAL_DIR/input/gfs/gfs_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}.nc
+gfs_in_nc=$GFS_NC_DIR/gfs_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}.nc
 $PYTHON extract_gfs_24hr_rain.py -i "$gfs_in_nc" -o "$VAL_OUTDIR"
 
 echo "--------------------------"
@@ -97,12 +95,12 @@ echo "---------------------------------"
 
 # 24-hr difference plot (WRF-GSMaP, GFS-GSMaP)
 cd "$VAL_DIR/scripts/compare" || exit
-gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
+gsmap_in_nc=$GSMAP_NC_DIR/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
 $PYTHON plot_24hr_rain_diff.py -i "$gsmap_in_nc" -o "$VAL_OUTDIR"
 
 # 24-hr GSMaP versus TRMM Climatology
 cd "$VAL_DIR/scripts/gsmap" || exit
-gsmap_in_nc=$VAL_DIR/input/gsmap/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
+gsmap_in_nc=$GSMAP_NC_DIR/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
 clim_out_dir="${OUTDIR}/climatology/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ"
 mkdir -p "clim_out_dir"
 $PYTHON plot_gsmap_clim.py -i "$gsmap_in_nc" -o "$clim_out_dir"
@@ -150,8 +148,8 @@ echo "---------------------------"
 #              CLEAN UP FILES                  #
 # -------------------------------------------- #
 # rm ${VAL_DIR}/gsmap/nc/*.nc
-rm ${VAL_DIR}/gsmap/log/*.log
-rm ${VAL_DIR}/gfs/nc/${FCST_YY}${FCST_MM}${FCST_DD}/${FCST_ZZ}/*.nc
+# rm ${VAL_DIR}/gsmap/log/*.log
+# rm ${VAL_DIR}/gfs/nc/${FCST_YY}${FCST_MM}${FCST_DD}/${FCST_ZZ}/*.nc
 echo "----------------------"
 echo " Validation finished! "
 echo "----------------------"
