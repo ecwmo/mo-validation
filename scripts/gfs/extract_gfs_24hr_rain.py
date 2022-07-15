@@ -20,7 +20,7 @@ def extract(in_file, out_dir):
     for irow, row in stn_df.iterrows():
         df = ds.sel(lat=row["lat"], lon=row["lon"], method="nearest").to_dataframe()
         out_file = out_dir / f"gfs_{init_dt_str2}PHT_{row['name']}_pr.csv"
-        df[var_name].head(24).to_csv(out_file, index=False, header=False)
+        df[var_name].head(25).to_csv(out_file, index=False, header=False)
 
 
 if __name__ == "__main__":
