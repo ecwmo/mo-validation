@@ -110,37 +110,19 @@ $PYTHON plot_gsmap_clim.py -i "$gsmap_in_nc" -o "$clim_out_dir"
 # 24-hr timeseries plot (WRF, GFS, GSMaP)
 cd "$VAL_DIR/python" || exit
 
-# Edit concatenating csv script
-sed -i "4s/.*/yyyymmdd = '${FCST_YY_PHT}-${FCST_MM_PHT}-${FCST_DD_PHT}'/" concat_rain.py
-sed -i "5s/.*/init = '${FCST_HH_PHT}'/" concat_rain.py
-sed -i "6s~.*~IN_DIR = '${VAL_OUTDIR}'~" concat_rain.py
-sed -i "7s~.*~OUT_DIR = '${VAL_OUTDIR}'~" concat_rain.py
-
 # Concatenate csv
-$PYTHON concat_rain.py
-
-# Edit time series plotting script
-sed -i "7s/.*/yyyymmdd = '${FCST_YY_PHT}-${FCST_MM_PHT}-${FCST_DD_PHT}'/" timeseries_plot.py
-sed -i "8s/.*/init = '${FCST_HH_PHT}'/" timeseries_plot.py
-sed -i "9s~.*~FCST_DIR = '${OUTDIR}/web/json'~" timeseries_plot.py
-sed -i "10s~.*~CSV_DIR = '${VAL_OUTDIR}'~" timeseries_plot.py
-sed -i "11s~.*~OUT_DIR = '${VAL_OUTDIR}'~" timeseries_plot.py
-sed -i "12s~.*~CLIM_DIR = '${VAL_DIR}/aws/csv'~" timeseries_plot.py
-sed -i "13s/.*/month = '${FCST_MM_PHT}'/" timeseries_plot.py
-sed -i "14s/.*/stn = '${STATION_ID}'/" timeseries_plot.py
-sed -i "15s/.*/station = '${STATION_NAME}'/" timeseries_plot.py
-sed -i "16s/.*/city_stn = '${CITY_ID}'/" timeseries_plot.py
+$PYTHON concat_rain.py -i "$VAL_OUTDIR" -o "$VAL_OUTDIR"
 
 # Plot 24hr time series
-$PYTHON timeseries_plot.py
+$PYTHON plot_ts.py -i "$VAL_OUTDIR" -o "$VAL_OUTDIR"
 
 # Edit time series plotting script
 
 # Plot 5-day time series WRF, AWS, and GSMaP
-$PYTHON timeseries_plot_stations.py
+$PYTHON plot_stations_ts.py -o "$VAL_OUTDIR"
 
 # Plot statistical error metrics (month summary only, runs every 5th day of month)
-$PYTHON scalar_meaures.py
+$PYTHON scalar_measures.py -o "$VAL_OUTDIR"
 
 echo "--------------------------"
 echo " Done with comparison!    "

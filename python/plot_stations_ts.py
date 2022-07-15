@@ -2,16 +2,23 @@
 # Author: Angela Magnaye & Kevin Henson
 # Last edit: June 28, 2022
 
+import sys
+import getopt
+import pytz
+from datetime import timedelta
 from pathlib import Path
-import pandas as pd
+
 import numpy as np
-import xarray as xr
-from datetime import date, timedelta
+import pandas as pd
+
 import matplotlib.pyplot as plt
 from matplotlib.legend import Legend
+
 from get_5day_gsmap_aws_wrf import get_5day_gsmap_aws_wrf
 
-# import sys
+
+tz = pytz.timezone("Asia/Manila")
+
 
 # Define function for plotting
 def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=None):
@@ -234,74 +241,100 @@ def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=Non
         plt.setp(leg.get_title(), fontsize="16")
 
 
-dt = date.today()
+def proc(out_dir):
+    yyyymmdd = out_dir.parent.name
+    zz = out_dir.name
 
-# For testing
-# dt = date(2022,6,8)
+    init_dt = pd.to_datetime(
+        f"{yyyymmdd}_{zz}", format="%Y%m%d_%H", utc=True
+    ).astimezone(tz)
+    init_dt_str = init_dt.strftime("%Y-%m-%d_%H")
 
-date_str = str(dt)
-date_str_nohyphen = date_str.replace("-", "")
+    dt = init_dt.date()
 
-outdir = "/home/modelman/forecast/output/validation/" + date_str_nohyphen + "/00/"
-station_list = pd.read_csv("stations_lufft.csv")
+    station_list = pd.read_csv("stations_lufft.csv")
 
-# Loop through stations
-for i, stn in station_list.iterrows():
-    df_wrf, df_aws, df_gsmap, dt_var_str = get_5day_gsmap_aws_wrf(dt, stn)
+    # Loop through stations
+    for i, stn in station_list.iterrows():
+        df_wrf, df_aws, df_gsmap, dt_var_str = get_5day_gsmap_aws_wrf(dt, stn)
 
-    # Plotting for each station
-    plt.figure(dpi=300)
-    plt.rcParams["figure.figsize"] = (20, 24)
+        # Plotting for each station
+        plt.figure(dpi=300)
+        plt.rcParams["figure.figsize"] = (20, 24)
 
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(ncols=1, nrows=4)
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(ncols=1, nrows=4)
 
-    plot_comparison(
-        dt,
-        ax1,
-        "rain",
-        "Rainfall (mm/hr)",
-        df_aws["rr"],
-        df_wrf["rain"],
-        0,
-        df_gsmap["precip"],
-    )
-    plot_comparison(
-        dt,
-        ax2,
-        "temp",
-        "Temperature (C\N{DEGREE SIGN})",
-        df_aws["temp"],
-        df_wrf["temp"],
-        15,
-    )
-    plot_comparison(
-        dt, ax3, "rh", "Relative Humidity (%)", df_aws["rh"], df_wrf["rh"], 10
-    )
-    plot_comparison(
-        dt, ax4, "hi", "Heat Index (C\N{DEGREE SIGN})", df_aws["hi"], df_wrf["hi"], 15
-    )
+        plot_comparison(
+            dt,
+            ax1,
+            "rain",
+            "Rainfall (mm/hr)",
+            df_aws["rr"],
+            df_wrf["rain"],
+            0,
+            df_gsmap["precip"],
+        )
+        plot_comparison(
+            dt,
+            ax2,
+            "temp",
+            "Temperature (C\N{DEGREE SIGN})",
+            df_aws["temp"],
+            df_wrf["temp"],
+            15,
+        )
+        plot_comparison(
+            dt, ax3, "rh", "Relative Humidity (%)", df_aws["rh"], df_wrf["rh"], 10
+        )
+        plot_comparison(
+            dt,
+            ax4,
+            "hi",
+            "Heat Index (C\N{DEGREE SIGN})",
+            df_aws["hi"],
+            df_wrf["hi"],
+            15,
+        )
 
-    ax1.set_title(
-        f"Forecast ({stn['name']})\nInitialized at {dt_var_str} 08:00 PHT",
-        pad=28,
-        fontsize=28,
-    )
+        ax1.set_title(
+            f"Forecast ({stn['name']})\nInitialized at {dt_var_str} 08:00 PHT",
+            pad=28,
+            fontsize=28,
+        )
 
-    ax4.set_xlabel("Day and Time (PHT)", size=24)
+        ax4.set_xlabel("Day and Time (PHT)", size=24)
 
-    out_file = (
-        Path(outdir) / f"validation_aws_combined_{stn['name']}_{date_str}_08PHT.png"
-    )
-    out_file.parent.mkdir(parents=True, exist_ok=True)
-    fig.tight_layout(pad=2.0)
-    plt.savefig(str(out_file), dpi=300)
-    print("Saved figure " + str(out_file))
-    # sys.exit()
+        out_file = (
+            Path(out_dir)
+            / f"validation_aws_combined_{stn['name']}_{init_dt_str}PHT.png"
+        )
+        out_file.parent.mkdir(parents=True, exist_ok=True)
+        fig.tight_layout(pad=2.0)
+        plt.savefig(str(out_file), dpi=300)
+        print("Saved figure " + str(out_file))
+        # sys.exit()
 
-# For outputting to csv
+    # For outputting to csv
 
-# Rename header
-# df_all_stns.rename(columns = {'precip':'precip(mm)'}, inplace = True)
+    # Rename header
+    # df_all_stns.rename(columns = {'precip':'precip(mm)'}, inplace = True)
 
-# outfile = outdir + 'gsmap_5days_' + str(dt) + "UTC_lufft_stations"
-# df_all_stns.to_csv(outfile, index = False)
+    # outfile = outdir + 'gsmap_5days_' + str(dt) + "UTC_lufft_stations"
+    # df_all_stns.to_csv(outfile, index = False)
+
+
+if __name__ == "__main__":
+    out_dir = Path("")
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "ho:", ["odir="])
+    except getopt.GetoptError:
+        print("plot_station_ts.py -o <output dir>")
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == "-h":
+            print("plot_station_ts.py -o <output dir>")
+            sys.exit()
+        elif opt in ("-o", "--odir"):
+            out_dir = Path(arg)
+            out_dir.mkdir(parents=True, exist_ok=True)
+    proc(out_dir)
