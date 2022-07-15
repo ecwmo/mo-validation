@@ -134,19 +134,10 @@ echo "---------------------------------"
 echo " Processing contingency plot...  "
 echo "---------------------------------"
 
-cd "$VAL_DIR/grads/nc" || exit
-$CDO remapbil,wrf_24hr_rain_day1_${DATE_STR1}PHT.nc gsmap_24hr_rain_day1_${DATE_STR1}PHT.nc gsmap_24hr_rain_day1_${DATE_STR1}PHT_re.nc
-
 cd "$VAL_DIR/contingency" || exit
 
-# Edit contingency script
-sed -i "4s/.*/yyyymmdd = '${FCST_YY_PHT}-${FCST_MM_PHT}-${FCST_DD_PHT}'/" forecast_verification.py
-sed -i "5s/.*/init = '${FCST_HH_PHT}'/" forecast_verification.py
-sed -i "6s~.*~EXTRACT_DIR = '${VAL_DIR}/grads/nc'~" forecast_verification.py
-sed -i "7s~.*~OUT_DIR = '${VAL_OUTDIR}'~" forecast_verification.py
-
 # Plot contingency table
-$PYTHON forecast_verification.py
+$PYTHON forecast_verification.py -o "$VAL_OUTDIR"
 
 # only executes during Sundays
 $PYTHON forecast_verification_week_and_month_average.py
