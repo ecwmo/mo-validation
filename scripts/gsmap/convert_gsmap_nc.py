@@ -7,6 +7,8 @@ import pandas as pd
 import xarray as xr
 import salem
 
+from tqdm import tqdm
+
 
 def convert_to_xr(gz_file, var_name="precip"):
     gz = gzip.GzipFile(gz_file, "rb")
@@ -26,7 +28,7 @@ def convert_to_xr(gz_file, var_name="precip"):
 def proc(in_dir, out_dir):
     in_files = list(in_dir.glob("*.dat.gz"))
     in_files.sort()
-    ds = [convert_to_xr(f) for f in in_files]
+    ds = [convert_to_xr(f) for f in tqdm(in_files, desc="Convert to ds")]
     ds = xr.concat(ds, dim="time")
 
     ds.attrs["Conventions"] = "CF-1.7"
