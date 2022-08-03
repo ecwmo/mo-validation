@@ -1,15 +1,13 @@
 #!/bin/bash
 
-export VAL_DIR=$MAINDIR/validation
-
-export GSMAP_DATA="gauge" # options : gauge, nrt, now [can only be run at 9:00 PHT sharp]
 export STATION_ID="MOIP"
 export STATION_NAME="Manila Observatory"
 export CITY_ID="NCR"
 
+export VAL_DIR=$MAINDIR/validation
+
 export TEMP_DIR=${VAL_DIR}/.tmp
 
-export GSMAP_NC_DIR=${VAL_DIR}/input/gsmap
 export GFS_NC_DIR=${VAL_DIR}/input/gfs
 export PYWRF_NC_DIR=${VAL_DIR}/input/wrf_out
 

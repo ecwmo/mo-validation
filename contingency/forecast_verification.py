@@ -32,8 +32,6 @@ wrf_nc_dir = Path(os.getenv("PYWRF_NC_DIR"))
 
 
 def plot_panel(conts, init_dt):
-    fig_background_color = "white"
-    fig_border = "black"
     obs_title = "Observation (GSMaP)"
     fcst_title = "Forecast (WRF)"
 
@@ -51,7 +49,10 @@ def plot_panel(conts, init_dt):
         for ic in range(3):
             pod, far, sr, cell_text = cont_table(conts[ir][ic]["dat"])
             title_text = f"24-hr {conts[ir][ic]['title']} Rainfall\n"
-            footer_text = f"Probability of Detection = {pod}\nFalse Alarm Ratio = {far}\nSuccess Ratio = {sr}"
+            footer_text = (
+                f"Probability of Detection = {pod}\nFalse Alarm Ratio = {far}\n"
+                f"Success Ratio = {sr}"
+            )
             axs[ir][ic].get_xaxis().set_visible(False)
             axs[ir][ic].get_yaxis().set_visible(False)
             axs[ir][ic].set_frame_on(False)
@@ -181,7 +182,6 @@ def plot_panel(conts, init_dt):
         size=8,
         weight="heavy",
     )
-    # axs[1][1].add_patch(patch.Rectangle((0,0), 3, 3, edgecolor='black', facecolor='none',zorder=300))
     return fig
 
 
@@ -190,7 +190,6 @@ def proc(out_dir):
     zz = out_dir.name
 
     init_dt_utc = pd.to_datetime(f"{yyyymmdd}_{zz}", format="%Y%m%d_%H", utc=True)
-    init_dt_utc_str = init_dt_utc.strftime("%Y-%m-%d_%H")
     init_dt = init_dt_utc.astimezone(tz)
     init_dt_str = init_dt.strftime("%Y-%m-%d_%H")
 
@@ -207,14 +206,14 @@ def proc(out_dir):
     wrf_rain = wrf_rain.sel(lat=slice(*YLIM), lon=slice(*XLIM))
     wrf_rain = wrf_rain.mean("ens").sum("time")
 
-    regridder = xe.Regridder(gsmap, wrf_rain, "bilinear")
-    gsmap_re = regridder(gsmap)
+    regridder = xe.Regridder(wrf_rain, gsmap, "bilinear")
+    wrf_rain_re = regridder(wrf_rain)
 
     print("Getting contingency function for total rainfall ...")
-    cont = calculate_contingency(wrf_rain, gsmap_re)
+    cont = calculate_contingency(wrf_rain_re, gsmap)
     # save contingency table plot as netCDF file
     print("Saving contingency table to netCDF file...")
-    da_out = wrf_rain.copy()
+    da_out = wrf_rain_re.copy()
     da_out.values = cont
     da_out.name = "cont"
     da_out.attrs["long_name"] = "Contingency Table (WRF VERSUS GSMaP)"
@@ -225,19 +224,19 @@ def proc(out_dir):
     da_out.to_netcdf(out_file)
 
     print("Getting contingency function for dry rainfall category...")
-    cont_dry = calculate_cont_dry(wrf_rain, gsmap_re)
+    cont_dry = calculate_cont_dry(wrf_rain_re, gsmap)
 
     print("Getting contingency function for low rainfall category...")
-    cont_low = calculate_cont_low(wrf_rain, gsmap_re)
+    cont_low = calculate_cont_low(wrf_rain_re, gsmap)
 
     print("Getting contingency function for moderate rainfall category...")
-    cont_mod = calculate_cont_moderate(wrf_rain, gsmap_re)
+    cont_mod = calculate_cont_moderate(wrf_rain_re, gsmap)
 
     print("Getting contingency function for heavy rainfall category...")
-    cont_heavy = calculate_cont_heavy(wrf_rain, gsmap_re)
+    cont_heavy = calculate_cont_heavy(wrf_rain_re, gsmap)
 
     print("Getting contingency function for extreme rainfall category...")
-    cont_ext = calculate_cont_extreme(wrf_rain, gsmap_re)
+    cont_ext = calculate_cont_extreme(wrf_rain_re, gsmap)
 
     conts = [
         [
@@ -251,7 +250,7 @@ def proc(out_dir):
             {"dat": cont, "title": "Total"},
         ],
     ]
-    fig = plot_panel(conts, init_dt)
+    plot_panel(conts, init_dt)
 
     out_file = out_dir / f"contingency_{init_dt_str}PHT.png"
     out_file.parent.mkdir(parents=True, exist_ok=True)

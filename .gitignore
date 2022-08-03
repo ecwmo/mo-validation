@@ -166,7 +166,8 @@ cython_debug/
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 
-set_cron_env.sh
+log.validation
+log.validation_nodl
 /.bak/
 /.tmp/
 /input/

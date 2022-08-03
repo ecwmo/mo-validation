@@ -30,4 +30,13 @@ export VAL_OUTDIR=${OUTDIR}/validation/${FCST_YY}${FCST_MM}${FCST_DD}/$FCST_ZZ
 
 export GFSDIR=$MAINDIR/input/gfs_files/$FCST_YYYYMMDD/$FCST_ZZ
 export NUM_FILES=$((WRF_FCST_DAYS * 24 + 1))
+
+# set variables for download_gsmap.sh
+export FCST_YYYYMMDD_GSMAP=$FCST_YYYYMMDD
+export FCST_ZZ_GSMAP=$FCST_ZZ
+export FCST_YY_GSMAP=$FCST_YY
+export FCST_MM_GSMAP=$FCST_MM
+export FCST_DD_GSMAP=$FCST_DD
+export GSMAP_TEMP_DIR="$TEMP_DIR/gsmap/$FCST_YYYYMMDD_GSMAP/$FCST_ZZ_GSMAP"
+
 ########## Dynamic Variables ##########

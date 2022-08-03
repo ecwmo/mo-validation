@@ -38,10 +38,12 @@ echo "--------------------------"
 echo " Processing GSMaP files  "
 echo "--------------------------"
 
-cd "$VAL_DIR/scripts/gsmap" || exit
+cd "$MAINDIR/scripts" || exit
 
-if [ $DOWNLOAD_INPUT -eq 1 ]; then
-  export GSMAP_TEMP_DIR="$TEMP_DIR/gsmap/$FCST_YYYYMMDD/$FCST_ZZ"
+FILE=$(find "${GSMAP_NC_DIR}"/*"${FCST_YY_GSMAP}"-"${FCST_MM_GSMAP}"-"${FCST_DD_GSMAP}"_"${FCST_ZZ_GSMAP}"* | head -1)
+
+if [ $DOWNLOAD_INPUT -eq 1 ] && [ ! -f "$FILE" ]; then
+
   mkdir -p "$GSMAP_TEMP_DIR"
   # Download GSMaP data
   ./download_gsmap.sh
@@ -50,6 +52,8 @@ if [ $DOWNLOAD_INPUT -eq 1 ]; then
   # Remove .gz files
   rm -rf "${GSMAP_TEMP_DIR?:}"
 fi
+
+cd "$VAL_DIR/scripts/gsmap" || exit
 
 # Plot GSMaP
 gsmap_in_nc=$GSMAP_NC_DIR/gsmap_${GSMAP_DATA}_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
