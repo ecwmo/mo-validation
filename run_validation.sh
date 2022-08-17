@@ -47,6 +47,8 @@ if [ $DOWNLOAD_INPUT -eq 1 ] && [ ! -f "$FILE" ]; then
   mkdir -p "$GSMAP_TEMP_DIR"
   # Download GSMaP data
   ./download_gsmap.sh
+
+  cd "$SCRIPT_DIR/python" || exit
   # Convert GSMaP .gz files to .nc
   $PYTHON convert_gsmap_nc.py -i "$GSMAP_TEMP_DIR" -o "$GSMAP_NC_DIR"
   # Remove .gz files
