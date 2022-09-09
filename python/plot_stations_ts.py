@@ -304,9 +304,9 @@ def proc(out_dir):
 
         ax4.set_xlabel("Day and Time (PHT)", size=24)
 
+        label = stn["name"].replace(" ", "_")
         out_file = (
-            Path(out_dir)
-            / f"validation_aws_combined_{stn['name']}_{init_dt_str}PHT.png"
+            Path(out_dir) / f"validation_aws_combined_{label}_{init_dt_str}PHT.png"
         )
         out_file.parent.mkdir(parents=True, exist_ok=True)
         fig.tight_layout(pad=2.0)

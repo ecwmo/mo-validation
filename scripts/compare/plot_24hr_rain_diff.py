@@ -17,40 +17,38 @@ gfs_nc_dir = Path(os.getenv("GFS_NC_DIR"))
 
 tz = pytz.timezone("Asia/Manila")
 
-var_opts = [
-    {
-        "name": "wrf-gsmap",
-        "title": "WRF-GSMaP 24-hr Total Rainfall (mm)",
-        "units": "mm",
-        "levels": range(-50, 51, 10),
-        "colors": sns.blend_palette(
-            [
-                "#8b4513",
-                "#f0e68c",
-                "#ffffff",
-                "#48d1cc",
-                "#000080",
-            ],
-            n_colors=12,
-        ),
-    },
-    {
-        "name": "gfs-gsmap",
-        "title": "GFS-GSMaP 24-hr Total Rainfall (mm)",
-        "units": "mm",
-        "levels": range(-50, 51, 10),
-        "colors": sns.blend_palette(
-            [
-                "#8b4513",
-                "#f0e68c",
-                "#ffffff",
-                "#48d1cc",
-                "#000080",
-            ],
-            n_colors=12,
-        ),
-    },
+var_opts = []
+names = [
+    "wrf_ensmean-gsmap",
+    "wrf_run1-gsmap",
+    "wrf_run2-gsmap",
+    "wrf_run3-gsmap",
+    "gfs-gsmap",
 ]
+
+post_title = " - GSMaP 24-hr Total Rainfall (mm)"
+titles = ["WRF ensemble mean", "WRF run 1", "WRF run 2", "WRF run 3", "GFS"]
+
+for i, name in enumerate(names):
+
+    var_opts.append(
+        {
+            "name": name,
+            "title": f"{titles[i]}{post_title}",
+            "units": "mm",
+            "levels": range(-50, 51, 10),
+            "colors": sns.blend_palette(
+                [
+                    "#8b4513",
+                    "#f0e68c",
+                    "#ffffff",
+                    "#48d1cc",
+                    "#000080",
+                ],
+                n_colors=12,
+            ),
+        },
+    )
 
 
 def main(in_file, out_dir):
@@ -70,8 +68,12 @@ def main(in_file, out_dir):
     wrf_ds = salem.open_xr_dataset(wrf_nc_file)
 
     wrf_rain = wrf_ds["rain"].isel(time=(wrf_ds.time.dt.day == init_dt_utc.day))
-    wrf_rain = wrf_rain.mean("ens").sum("time")
     wrf_rain = wrf_rain.sel(lat=slice(*YLIM), lon=slice(*XLIM))
+
+    wrf_rain_ens = wrf_rain.mean("ens").sum("time")
+    wrf_rain_run1 = wrf_rain.sel(ens=0).sum("time")
+    wrf_rain_run2 = wrf_rain.sel(ens=1).sum("time")
+    wrf_rain_run3 = wrf_rain.sel(ens=2).sum("time")
 
     gfs_nc_file = gfs_nc_dir / f"gfs_{init_dt_utc:%Y-%m-%d_%H}_day.nc"
     if not gfs_nc_file.is_file():
@@ -79,12 +81,17 @@ def main(in_file, out_dir):
         return
     gfs_rain = salem.open_xr_dataset(gfs_nc_file)["precip"].isel(time=0)
 
-    regridder = xe.Regridder(gsmap, wrf_rain, "bilinear")
-    gsmap_re = regridder(gsmap)
-    regridder = xe.Regridder(gfs_rain, wrf_rain, "bilinear")
-    gfs_rain_re = regridder(gfs_rain)
+    wrfout_list = [wrf_rain_ens, wrf_rain_run1, wrf_rain_run2, wrf_rain_run3]
+    diff_das = []
+    for wrfout in wrfout_list:
+        regridder = xe.Regridder(wrfout, gsmap, "bilinear")
+        wrfout_temp = regridder(wrfout)
+        diff_das.append(wrfout_temp - gsmap)
 
-    diff_das = [wrf_rain - gsmap_re, gfs_rain_re - gsmap_re]
+    regridder = xe.Regridder(gsmap, gfs_rain, "bilinear")
+    gsmap_re_gfs = regridder(gsmap)
+
+    diff_das.append(gfs_rain - gsmap_re_gfs)
 
     for ida, da in enumerate(diff_das):
         plt_opts = var_opts[ida]
