@@ -38,7 +38,7 @@ def main(in_file, out_dir):
     init_dt_str = init_dt.strftime("%Y-%m-%d %H")
     init_dt_str2 = init_dt.strftime("%Y-%m-%d_%H")
 
-    for it in range(3):
+    for it in range(5):
         da = ds[var_name].isel(time=it)
         plt_opts = var_opts.copy()
 
@@ -53,7 +53,7 @@ def main(in_file, out_dir):
 
         fig = plot_map(da, plt_opts)
 
-        out_file = out_dir / f"gfs-24hr_rain_day{it}_{init_dt_str2}PHT.png"
+        out_file = out_dir / f"gfs-24hr_rain_day{it+1}_{init_dt_str2}PHT.png"
         fig.savefig(out_file, bbox_inches="tight", dpi=300)
         plt.close("all")
 
