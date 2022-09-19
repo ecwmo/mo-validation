@@ -46,7 +46,7 @@ def main(in_file, out_dir):
     var_opts["annotation"] = f"GSMaP (gauge calibrated) at {init_dt_str} PHT."
     fig = plot_map(da, var_opts)
 
-    out_file = out_dir / f"gsmap-24hr_rain_day0_{init_dt_str2}PHT.png"
+    out_file = out_dir / f"gsmap-24hr_rain_{init_dt_str2}PHT.png"
     fig.savefig(out_file, bbox_inches="tight", dpi=300)
     plt.close("all")
 

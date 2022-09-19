@@ -1,4 +1,5 @@
 import sys
+import os
 import getopt
 import pytz
 from datetime import timedelta
@@ -8,6 +9,8 @@ import salem
 
 import matplotlib.pyplot as plt
 from helpers.plot import plot_map
+
+gfs_dir = os.getenv("GFS_NC_DIR")
 
 tz = pytz.timezone("Asia/Manila")
 
@@ -32,13 +35,14 @@ var_opts = {
 
 
 def main(in_file, out_dir):
-    ds = salem.open_xr_dataset(in_file)
-
-    init_dt = pd.to_datetime(ds.time.values[0], utc=True).astimezone(tz)
-    init_dt_str = init_dt.strftime("%Y-%m-%d %H")
-    init_dt_str2 = init_dt.strftime("%Y-%m-%d_%H")
 
     for it in range(5):
+        ds = salem.open_xr_dataset(in_file)
+
+        init_dt = pd.to_datetime(ds.time.values[0], utc=True)
+        init_dt_str = init_dt.astimezone(tz).strftime("%Y-%m-%d %H")
+        init_dt_str2 = init_dt.astimezone(tz).strftime("%Y-%m-%d_%H")
+
         da = ds[var_name].isel(time=it)
         plt_opts = var_opts.copy()
 
@@ -48,14 +52,18 @@ def main(in_file, out_dir):
         dt2_str = dt2.strftime("%Y-%m-%d %H")
         plt_opts[
             "title"
-        ] = f"{var_opts['title']}\nValid from {dt1_str} to {dt2_str} PHT"
-        plt_opts["annotation"] = f"GFS initialized at {init_dt_str} PHT."
+        ] = f"{var_opts['title']}\ninitialized {init_dt_str} PHT\nvalid from {dt1_str} to {dt2_str} PHT"
+        # plt_opts["annotation"] = f"GFS initialized at {init_dt_str} PHT."
 
         fig = plot_map(da, plt_opts)
 
         out_file = out_dir / f"gfs-24hr_rain_day{it+1}_{init_dt_str2}PHT.png"
         fig.savefig(out_file, bbox_inches="tight", dpi=300)
         plt.close("all")
+
+        init_dt = init_dt - timedelta(1)
+        init_dt_str = init_dt.strftime("%Y-%m-%d_%H")
+        in_file = f"{gfs_dir}/gfs_{init_dt_str}_day.nc"
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # Description: Plot daily difference maps for WRF and GFS vs GSMAP
 # Author: Emilio Gozo and Kevin Henson
-# Last edited: Sept. 15, 2022
+# Last edited: Sept. 19, 2022
 
 from mimetypes import init
 import os
@@ -11,6 +11,7 @@ from pathlib import Path
 import pandas as pd
 import salem
 import xesmf as xe
+from datetime import timedelta
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -125,9 +126,11 @@ def main(in_file, out_dir):
         # Plot
         for ida, da in enumerate(diff_das):
             plt_opts = var_opts[ida]
+            dt_end = init_dt_start + timedelta(days=1)
+            dt_end_str = dt_end.strftime("%Y-%m-%d %H")
             plt_opts[
                 "title"
-            ] = f"{plt_opts['title']}\n initalized {init_dt_str} PHT\n valid from {init_dt_str_start} PHT"
+            ] = f"{plt_opts['title']}\n initialized {init_dt_str} PHT\n valid from {init_dt_str_start} to {dt_end_str} PHT"
             # plt_opts["annotation"] = f"GSMaP (gauge calibrated) at {init_dt_str} PHT."
             fig = plot_map(da, var_opts[ida])
 

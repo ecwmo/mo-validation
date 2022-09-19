@@ -150,6 +150,11 @@ echo "---------------------------"
 echo " Done with contingency!    "
 echo "---------------------------"
 
+cd "$VAL_DIR" || exit
+
+# Upload files
+"$VAL_DIR"/web_upload.sh
+
 # -------------------------------------------- #
 #              CLEAN UP FILES                  #
 # -------------------------------------------- #
@@ -159,4 +164,3 @@ echo "---------------------------"
 echo "----------------------"
 echo " Validation finished! "
 echo "----------------------"
-cd "$VAL_DIR" || exit
