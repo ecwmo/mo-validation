@@ -1,6 +1,6 @@
 # Description: get 5 day wrf, aws, ang gsmap data
 # Author: Kevin Henson
-# Last edited: June 17, 2022
+# Last edited: May 19, 2023
 
 import os
 from pathlib import Path
@@ -57,9 +57,6 @@ def get_5day_gsmap_aws_wrf(dt, stn):
     # Add station name column
     df_gsmap.insert(loc=0, column="name", value=stn["name"])
 
-    # Initialize wrf data table
-    wrf_vars = {"timestamp": [], "rain": [], "temp": [], "rh": [], "hi": []}
-
     # Set date variables
     dt_var = dt - timedelta(5)
     dt_var_str = str(dt_var)
@@ -72,10 +69,16 @@ def get_5day_gsmap_aws_wrf(dt, stn):
     if wrf_fn.is_file():
         df_wrf = pd.read_json(wrf_fn, orient="index")
 
-        # Get 5-day data from wrf fcst json file
+        # Initialize wrf data table
+        wrf_vars = {"timestamp": []}
+        
+        keys = df_wrf["forecast"][stn["name"]]["hr"][0].keys()
+        for key in keys:
+            wrf_vars[key] = []
 
+        # Get 5-day data from wrf fcst json file
         for i in np.arange(0, 120, 1):
-            for key in wrf_vars.keys():
+            for key in keys:
                 wrf_vars[key].append(df_wrf["forecast"][stn["name"]]["hr"][i][key])
 
                 # Set missing values to NaN

@@ -1,6 +1,6 @@
 # Description: 5-day time series comparison
-# Author: Angela Magnaye & Kevin Henson
-# Last edit: June 28, 2022
+# Author: Kevin Henson
+# Last edit: May 19, 2023
 
 import sys
 import getopt
@@ -27,7 +27,8 @@ def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=Non
     data_aws = np.array(data_aws, dtype=float)
     data_gsmap = np.array(data_gsmap, dtype=float)
 
-    indices = range(len(data_wrf))
+    wrf_ensmean = data_wrf[f"{var}_ensmean"]
+    indices = range(len(wrf_ensmean))
     width = np.min(np.diff(indices)) / 3.0
 
     # plot time series
@@ -54,8 +55,8 @@ def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=Non
                 ax.bar(
                     indices - width,
                     data_aws,
-                    edgecolor="red",
-                    facecolor="red",
+                    edgecolor="black",
+                    facecolor="black",
                     width=w,
                     zorder=2,
                 )
@@ -64,11 +65,11 @@ def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=Non
             labels1.append("AWS")
 
         # Check if data exists/is complete
-        if len(data_wrf) == 120:
+        if len(wrf_ensmean) == 120:
             leg_items.append(
                 ax.bar(
                     indices,
-                    data_wrf,
+                    wrf_ensmean,
                     edgecolor="C0",
                     facecolor="C0",
                     width=w,
@@ -76,7 +77,7 @@ def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=Non
                 )
             )
 
-            labels1.append("WRF")
+            labels1.append("WRF ensmean")
 
         # Check if data exists/is complete
         if len(data_gsmap) == 120:
@@ -84,8 +85,8 @@ def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=Non
                 ax.bar(
                     indices + width,
                     data_gsmap,
-                    edgecolor="black",
-                    facecolor="black",
+                    edgecolor="red",
+                    facecolor="red",
                     width=w,
                     zorder=2,
                 )
@@ -105,13 +106,31 @@ def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=Non
     else:
         # Check if data exists/is complete
         if len(data_aws) == 120:
-            ax.plot(indices, data_aws, c="r", marker="o", label="AWS")
+            ax.plot(indices, data_aws, c="k", marker="", linewidth = 4, label="AWS", zorder=100)
 
-        # Check if data exists/is complete
-        if len(data_wrf) == 120:
-            ax.plot(indices, data_wrf, c="C0", marker="o", label="WRF")
+        # List variable ensemble members and mean in json file
+        if var == "temp":
+            starts_with_var = [x for x in data_wrf.columns if x.startswith(f"{var}_")]
+        else:
+            starts_with_var = [x for x in data_wrf.columns if x.startswith(f"{var}")]
 
-        ax.legend(framealpha=0.5, frameon=True, loc="upper right", prop={"size": 24})
+        # Loop through ensemble
+        for i,var_name in enumerate(starts_with_var):
+            data = data_wrf[var_name]
+            # Check if data exists/is complete
+            if len(data) == 120:
+                var_label = var_name.split("_")[-1]
+                # put ensmean "on top"
+                if var_label == "ensmean":
+                    ax.plot(indices, data, c=f"C{i}", marker="", linewidth = 4, label=f"WRF {var_label}", zorder=99)
+                else:
+                    ax.plot(indices, data, c=f"C{i}", marker="", linewidth = 4, label=f"WRF {var_label}")
+
+            ax.legend(framealpha=0.5, 
+                      frameon=True, 
+                      loc="lower center", 
+                      prop={"size": 24}, 
+                      ncol=len(starts_with_var)+1)
 
     xmin1, xmax1 = ax.get_xlim()
     ymin1, ymax1 = ax.get_ylim()
@@ -270,7 +289,7 @@ def proc(out_dir):
             "rain",
             "Rainfall (mm/hr)",
             df_aws["rr"],
-            df_wrf["rain"],
+            df_wrf,
             0,
             df_gsmap["precip"],
         )
@@ -280,11 +299,11 @@ def proc(out_dir):
             "temp",
             "Temperature (C\N{DEGREE SIGN})",
             df_aws["temp"],
-            df_wrf["temp"],
+            df_wrf,
             15,
         )
         plot_comparison(
-            dt, ax3, "rh", "Relative Humidity (%)", df_aws["rh"], df_wrf["rh"], 10
+            dt, ax3, "rh", "Relative Humidity (%)", df_aws["rh"], df_wrf, 10
         )
         plot_comparison(
             dt,
@@ -292,7 +311,7 @@ def proc(out_dir):
             "hi",
             "Heat Index (C\N{DEGREE SIGN})",
             df_aws["hi"],
-            df_wrf["hi"],
+            df_wrf,
             15,
         )
 
@@ -312,16 +331,6 @@ def proc(out_dir):
         fig.tight_layout(pad=2.0)
         plt.savefig(str(out_file), dpi=300)
         print("Saved figure " + str(out_file))
-        # sys.exit()
-
-    # For outputting to csv
-
-    # Rename header
-    # df_all_stns.rename(columns = {'precip':'precip(mm)'}, inplace = True)
-
-    # outfile = outdir + 'gsmap_5days_' + str(dt) + "UTC_lufft_stations"
-    # df_all_stns.to_csv(outfile, index = False)
-
 
 if __name__ == "__main__":
     out_dir = Path("")
