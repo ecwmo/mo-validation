@@ -8,7 +8,7 @@ export VAL_DIR=$MAINDIR/validation
 
 export TEMP_DIR=${VAL_DIR}/.tmp
 
-export GFS_NC_DIR=${VAL_DIR}/input/gfs
+export VAL_GFS_NC_DIR=${VAL_DIR}/input/gfs
 export PYWRF_NC_DIR=${VAL_DIR}/input/wrf_out
 
 export TRMM_CLIM_DIR=${VAL_DIR}/input/climatology/trmm

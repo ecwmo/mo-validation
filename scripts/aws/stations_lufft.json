@@ -1,0 +1,107 @@
+[
+    {
+        "name": "SM Marikina",
+        "lat": 14.626654,
+        "lon": 121.085068
+    },
+    {
+        "name": "SM Masinag",
+        "lat": 14.62582,
+        "lon": 121.120403
+    },
+    {
+        "name": "SM Megamall",
+        "lat": 14.5841875,
+        "lon": 121.0569375
+    },
+    {
+        "name": "SM Angono",
+        "lat": 14.5312,
+        "lon": 121.154
+    },
+    {
+        "name": "SM Aura",
+        "lat": 14.5452,
+        "lon": 121.0532
+    },
+    {
+        "name": "SM BF Homes",
+        "lat": 14.4579,
+        "lon": 121.0323
+    },
+    {
+        "name": "SM Clark",
+        "lat": 15.1697,
+        "lon": 120.5807
+    },
+    {
+        "name": "SM Cubao",
+        "lat": 14.6182657,
+        "lon": 121.0558438
+    },
+    {
+        "name": "SM Downtown San Fernando",
+        "lat": 15.02778,
+        "lon": 120.6922
+    },
+    {
+        "name": "SM Southmall",
+        "lat": 14.4332,
+        "lon": 121.0108
+    },
+    {
+        "name": "SM Sta. Mesa",
+        "lat": 14.6040133,
+        "lon": 121.0191599
+    },
+    {
+        "name": "SM Taytay",
+        "lat": 14.5657,
+        "lon": 121.1413
+    },
+    {
+        "name": "North Wind - Ilocos Norte",
+        "lat": 18.5268,
+        "lon": 120.6872
+    },
+    {
+        "name": "SM Baguio",
+        "lat": 16.4071,
+        "lon": 120.5989
+    },
+    {
+        "name": "SM Batangas",
+        "lat": 13.755,
+        "lon": 121.0681
+    },
+    {
+        "name": "SM Calamba",
+        "lat": 14.2029,
+        "lon": 121.1552
+    },
+    {
+        "name": "SM Cauayan",
+        "lat": 16.9374,
+        "lon": 121.7697
+    },
+    {
+        "name": "SM Lipa",
+        "lat": 13.9548,
+        "lon": 121.1631
+    },
+    {
+        "name": "SM Lucena",
+        "lat": 13.9414,
+        "lon": 121.6259
+    },
+    {
+        "name": "SM Rosales",
+        "lat": 15.8784,
+        "lon": 120.6006
+    },
+    {
+        "name": "SM Sta. Rosa",
+        "lat": 14.3132,
+        "lon": 121.0989
+    }
+]

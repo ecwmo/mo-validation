@@ -78,12 +78,12 @@ echo "--------------------------"
 cd "$VAL_DIR/scripts/gfs" || exit
 
 # Convert GFS precipitation grb files to .nc
-$PYTHON convert_gfs_nc.py -i "$GFSDIR" -o "$GFS_NC_DIR"
+# $PYTHON convert_gfs_nc.py -i "$GFSDIR" -o "$VAL_GFS_NC_DIR"
 
 # Plot GFS
-gfs_in_nc=$GFS_NC_DIR/gfs_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
+gfs_in_nc=$VAL_GFS_NC_DIR/gfs_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}_day.nc
 $PYTHON plot_gfs_24hr_rain.py -i "$gfs_in_nc" -o "$VAL_OUTDIR"
-$PYTHON plot_gfs_acc_rain.py -i "$gfs_in_nc" -o "$VAL_OUTDIR"
+# $PYTHON plot_gfs_acc_rain.py -i "$gfs_in_nc" -o "$VAL_OUTDIR"
 
 # Extract GFS
 gfs_in_nc=$GFS_NC_DIR/gfs_${FCST_YY}-${FCST_MM}-${FCST_DD}_${FCST_ZZ}.nc
@@ -112,7 +112,7 @@ mkdir -p "clim_out_dir"
 $PYTHON plot_gsmap_clim.py -i "$gsmap_in_nc" -o "$clim_out_dir"
 
 # 24-hr timeseries plot (WRF, GFS, GSMaP)
-cd "$VAL_DIR/python" || exit
+cd "$VAL_DIR/scripts/aws" || exit
 
 # Concatenate csv
 $PYTHON concat_rain.py -i "$VAL_OUTDIR" -o "$VAL_OUTDIR"
@@ -138,7 +138,7 @@ echo "---------------------------------"
 echo " Processing contingency plot...  "
 echo "---------------------------------"
 
-cd "$VAL_DIR/contingency" || exit
+cd "$VAL_DIR/scripts/contingency" || exit
 
 # Plot contingency table
 $PYTHON forecast_verification.py -o "$VAL_OUTDIR"
@@ -150,10 +150,8 @@ echo "---------------------------"
 echo " Done with contingency!    "
 echo "---------------------------"
 
-cd "$VAL_DIR" || exit
-
 # Upload files
-"$VAL_DIR"/web_upload.sh
+"$VAL_DIR/scripts"/web_upload.sh
 
 # -------------------------------------------- #
 #              CLEAN UP FILES                  #
@@ -164,3 +162,5 @@ cd "$VAL_DIR" || exit
 echo "----------------------"
 echo " Validation finished! "
 echo "----------------------"
+
+cd "$VAL_DIR" || exit
