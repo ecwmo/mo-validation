@@ -106,7 +106,15 @@ def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=Non
     else:
         # Check if data exists/is complete
         if len(data_aws) == 120:
-            ax.plot(indices, data_aws, c="k", marker="", linewidth = 4, label="AWS", zorder=100)
+            ax.plot(
+                indices,
+                data_aws,
+                c="k",
+                marker="",
+                linewidth=4,
+                label="AWS",
+                zorder=100,
+            )
 
         # List variable ensemble members and mean in json file
         if var == "temp":
@@ -115,22 +123,39 @@ def plot_comparison(dt, ax, var, label, data_aws, data_wrf, ymin, data_gsmap=Non
             starts_with_var = [x for x in data_wrf.columns if x.startswith(f"{var}")]
 
         # Loop through ensemble
-        for i,var_name in enumerate(starts_with_var):
+        for i, var_name in enumerate(starts_with_var):
             data = data_wrf[var_name]
             # Check if data exists/is complete
             if len(data) == 120:
                 var_label = var_name.split("_")[-1]
                 # put ensmean "on top"
                 if var_label == "ensmean":
-                    ax.plot(indices, data, c=f"C{i}", marker="", linewidth = 4, label=f"WRF {var_label}", zorder=99)
+                    ax.plot(
+                        indices,
+                        data,
+                        c=f"C{i}",
+                        marker="",
+                        linewidth=4,
+                        label=f"WRF {var_label}",
+                        zorder=99,
+                    )
                 else:
-                    ax.plot(indices, data, c=f"C{i}", marker="", linewidth = 4, label=f"WRF {var_label}")
+                    ax.plot(
+                        indices,
+                        data,
+                        c=f"C{i}",
+                        marker="",
+                        linewidth=4,
+                        label=f"WRF {var_label}",
+                    )
 
-            ax.legend(framealpha=0.5, 
-                      frameon=True, 
-                      loc="lower center", 
-                      prop={"size": 24}, 
-                      ncol=len(starts_with_var)+1)
+            ax.legend(
+                framealpha=0.5,
+                frameon=True,
+                loc="lower center",
+                prop={"size": 24},
+                ncol=len(starts_with_var) + 1,
+            )
 
     xmin1, xmax1 = ax.get_xlim()
     ymin1, ymax1 = ax.get_ylim()
