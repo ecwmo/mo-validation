@@ -80,8 +80,8 @@ class Contingency_ari:
     
     
     def _get_extremes(self, ari):
-        _forecast_ari = xr.where(self.forecasts.rain > ari, 1, np.nan).to_dataset(name="forecast")
-        _observed_ari = xr.where(self.observed.rain > ari, 1, np.nan).to_dataset(name="observed")
+        _forecast_ari = xr.where(self.forecasts.rain >= ari, 1, np.nan).to_dataset(name="forecast")
+        _observed_ari = xr.where(self.observed.rain >= ari, 1, np.nan).to_dataset(name="observed")
 
         _extreme_ds =  xr.merge([_forecast_ari, _observed_ari])
         
