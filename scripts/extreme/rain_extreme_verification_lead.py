@@ -263,3 +263,7 @@ if __name__ == "__main__":
     img_dir.mkdir(parents=True, exist_ok=True)
     
     run_contingency(plot=plot, ari=ari)
+
+    #USAGE: python rain_extreme_verification_lead.py -w --plot --ari 5 -o "out_dir"
+    ## -w --plot sets plotting of spatial verification and roebber's diagrams to true
+    ## -ari 5 sets ari threshold to 5 by default but can be changed

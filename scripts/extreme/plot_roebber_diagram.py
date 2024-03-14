@@ -156,7 +156,7 @@ if __name__ == "__main__":
     img_dir = out_dir / "img"
     img_dir.mkdir(parents=True, exist_ok=True)
     
-    plot_performance_diagram("LPS")
+    plot_performance_diagram("TC")
     
 # USAGE: python plot_roebber_diagram.py 
 # If infile and outfile are different from the default, pass -w "<ifile>" -o "<ofile>", respectively 
