@@ -8,7 +8,7 @@ import os
 import getopt
 
 import sys
-sys.path.append("/home/modelman/forecast/validation/scripts/helpers")
+sys.path.append(f"{os.getenv('MAINDIR')}/validation/scripts/helpers")
 
 from contingency_config import config_lead
 

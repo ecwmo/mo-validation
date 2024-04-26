@@ -5,10 +5,10 @@ import salem
 import xesmf as xe
 from scipy.interpolate import interp1d
 
+import os
 from pathlib import Path
 
-
-script_dir = Path("/home/modelman/forecast/scripts/python/resources")
+script_dir = Path(f"{os.getenv('SCRIPT_DIR')}/python/resources") 
 
 def regrid(ds, _ds_out):
     return xe.Regridder(ds, _ds_out, "bilinear")(ds)

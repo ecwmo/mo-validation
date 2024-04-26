@@ -11,7 +11,7 @@ import glob
 import getopt
 
 import sys
-sys.path.append("/home/modelman/forecast/validation/scripts/helpers")
+sys.path.append(f"{os.getenv('MAINDIR')}/validation/scripts/helpers")
 
 from plot_format import *
 from contingency_ari import *
